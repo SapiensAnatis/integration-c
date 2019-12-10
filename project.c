@@ -210,6 +210,7 @@ void PushStack(struct Stack *stack, char value) {
 char PopStack(struct Stack *stack) {
     if (stack->size == 0) {
         printf("Stack is already empty! Value not popped.");
+        return;
     }
     
     char data;
