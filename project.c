@@ -21,8 +21,8 @@ int menu() {
     if (input >= 1 && input <= 2) { // valid range of choices
         return input;
     } else {
-        printf("You have selected an invalid option. Please try again.");
-        menu();
+        printf("You have selected an invalid option. Please try again.\n");
+        menu(); // Loop back and prompt again
     }
 }
 
