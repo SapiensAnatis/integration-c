@@ -2,94 +2,23 @@
 #include <stdlib.h>
 #include <math.h>
 
+/* --------------------------
+ * Prototype functions
+ * --------------------------
+ */
+
+int menu();
+
+double get_double_input(const char* prompt);
+const char* get_string_input(const char* prompt);
+
 /*
  * --------------------------
  * Function: menu()
  * --------------------------
- * Description: Displays a list of choices to the user
- * 
- * Returns: Integer representing choice selected. Guaranteed to be either 1 or 2
+ * Description: Main subroutine of the program. Executed on startup
+ * Returns: Exit code, giving information about how the program performed (system dependant)
  */
-
-int menu() {
-    printf("Please select from the following options:\n\
-    \t1. Compute trapezium rule estimate\n\
-    \t2. Exit\n");
-
-    char input;
-
-    // Loop until valid input received
-    while (1) {
-        input = getchar();
-        input -= 48; // 48 is 0 in ASCII; by subtracting this offset, input is an integer 
-                     // corresponding to the chosen option's number
-
-        if (input >= 1 && input <= 2) { // valid range of choices
-            return input;
-        } else {
-            printf("You have selected an invalid option. Please try again.\n");
-            continue;
-        }
-    }
-}
-
-/*
- * --------------------------
- * Function: get_double_input()
- * --------------------------
- * Description: Displays a prompt to the user (as passed to the function) and interprets input as a 
- *              double type - with some error checking
- * 
- * Parameters: char[] prompt - a character array (string) prompt which is given to printf() to be 
- *             shown to the user to inform their choice
- * 
- * Returns: double corresponding to interpretation (strtod). Will not return 0 unless the user 
- *          actually entered 0; invalid input is handled
- */
-
-double get_double_input(const char* prompt) {
-    printf(prompt);
-    
-    char buffer[255]; // Holder for string input
-    char *n_end; // Pointer given to strtod which signifies the end of valid numerical input
-    double output;
-
-    // Loop until satisfactory input is received, at which point function returns said input
-    while (1) {
-        fgets(buffer, 256, stdin); // Assign stdin stream data to buffer; 256 not 255 because \n is
-                                   // counted when the user presses Enter
-        output = strtod(buffer, &n_end);
-
-        if (n_end == buffer) { // If no numerical input was found
-            printf("Please enter a valid number.\n");
-            continue;
-        } else {
-            return output;
-        }
-    }
-}
-
-/*
- * --------------------------
- * Function: get_double_input()
- * --------------------------
- * Description: Displays a prompt to the user (as passed to the function) and returns input given
- * 
- * Parameters: char[] prompt - a character array (string) prompt which is given to printf() to be 
- *             shown to the user to inform their choice
- * 
- * Returns: string given as input from fgets(.., .., stdin)
- */
-
-const char* get_string_input(const char* prompt) {
-    printf(prompt);
-
-    char buffer[255];
-    fgets(buffer, 256, stdin);
-    return buffer;
-}
-
-
 
 int main() {
     while (1) {
@@ -124,7 +53,88 @@ int main() {
         // * convert expression to RPN using shunting yard
         // * in a loop, take RPN expression, replace x tokens with value of x used, evaluate
         // * perform above step as necessary to satisfy Simpson's rule/trapezium rule
-
-
     }
 }
+
+/*
+ * --------------------------
+ * Function: menu()
+ * --------------------------
+ * Description: Displays a list of choices to the user
+ * Returns: Integer representing choice selected. Guaranteed to be either 1 or 2
+ */
+
+int menu() {
+    printf("Please select from the following options:\n\
+    \t1. Compute trapezium rule estimate\n\
+    \t2. Exit\n");
+
+    char input;
+
+    // Loop until valid input received
+    while (1) {
+        input = getchar();
+        input -= 48; // 48 is 0 in ASCII; by subtracting this offset, input is an integer 
+                     // corresponding to the chosen option's number
+
+        if (input >= 1 && input <= 2) { // valid range of choices
+            return input;
+        } else {
+            printf("You have selected an invalid option. Please try again.\n");
+            continue;
+        }
+    }
+}
+
+/*
+ * --------------------------
+ * Function: get_double_input()
+ * --------------------------
+ * Description: Displays a prompt to the user (as passed to the function) and interprets input as a 
+ *              double type - with some error checking
+ * Parameters: char[] prompt - a character array (string) prompt which is given to printf() to be 
+ *             shown to the user to inform their choice
+ * Returns: double corresponding to interpretation (strtod). Will not return 0 unless the user 
+ *          actually entered 0; invalid input is handled
+ */
+
+double get_double_input(const char* prompt) {
+    printf(prompt);
+    
+    char buffer[255]; // Holder for string input
+    char *n_end; // Pointer given to strtod which signifies the end of valid numerical input
+    double output;
+
+    // Loop until satisfactory input is received, at which point function returns said input
+    while (1) {
+        fgets(buffer, 256, stdin); // Assign stdin stream data to buffer; 256 not 255 because \n is
+                                   // counted when the user presses Enter
+        output = strtod(buffer, &n_end);
+
+        if (n_end == buffer) { // If no numerical input was found
+            printf("Please enter a valid number.\n");
+            continue;
+        } else {
+            return output;
+        }
+    }
+}
+
+/*
+ * --------------------------
+ * Function: get_double_input()
+ * --------------------------
+ * Description: Displays a prompt to the user (as passed to the function) and returns input given
+ * Parameters: char[] prompt - a character array (string) prompt which is given to printf() to be 
+ *             shown to the user to inform their choice
+ * Returns: string given as input from fgets(.., .., stdin)
+ */
+
+const char* get_string_input(const char* prompt) {
+    printf(prompt);
+
+    char buffer[255];
+    fgets(buffer, 256, stdin);
+    return buffer;
+}
+

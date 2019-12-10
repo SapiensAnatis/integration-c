@@ -1,1 +1,2 @@
-project.out
+*.out
+.vscode/settings.json
