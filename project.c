@@ -107,8 +107,8 @@ int menu() {
     // Loop until valid input received
     while (1) {
         input = getchar();
-        input -= 48; // 48 is 0 in ASCII; by subtracting this offset, input is an integer 
-                     // corresponding to the chosen option's number
+        input -= 48; // 48 is the character 0 in ASCII; by subtracting this offset, input is an
+                     // integer corresponding to the chosen option's number
 
         if (input >= 1 && input <= 2) { // valid range of choices
             return input;
@@ -246,7 +246,7 @@ char GetTopOfStack(struct Stack *stack) {
     }
 
     return stack->top; 
-    
+
     // These methods that simply return a property may not seem necessary, but I prefer that I have
     // them so that I never have to directly access the properties of the stack, since some of them
     // are memory addresses which could cause things to go wrong. It's much easier if direct access
