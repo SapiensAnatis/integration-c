@@ -133,12 +133,3 @@ double get_double_input(const char* prompt) {
         }
     }
 }
-
-// ------ Shunting yard / RPN-related functions ------
-
-void FormatExpression(char *expression) {
-
-}
-
-
-
