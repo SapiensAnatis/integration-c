@@ -69,6 +69,18 @@ double get_double_input(const char* prompt) {
     }
 }
 
+/*
+ * --------------------------
+ * Function: get_double_input()
+ * --------------------------
+ * Description: Displays a prompt to the user (as passed to the function) and returns input given
+ * 
+ * Parameters: char[] prompt - a character array (string) prompt which is given to printf() to be 
+ *             shown to the user to inform their choice
+ * 
+ * Returns: string given as input from fgets(.., .., stdin)
+ */
+
 const char* get_string_input(const char* prompt) {
     printf(prompt);
 
@@ -76,6 +88,8 @@ const char* get_string_input(const char* prompt) {
     fgets(buffer, 256, stdin);
     return buffer;
 }
+
+
 
 int main() {
     while (1) {
@@ -110,5 +124,7 @@ int main() {
         // * convert expression to RPN using shunting yard
         // * in a loop, take RPN expression, replace x tokens with value of x used, evaluate
         // * perform above step as necessary to satisfy Simpson's rule/trapezium rule
+
+
     }
 }
