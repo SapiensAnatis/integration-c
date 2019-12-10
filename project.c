@@ -153,6 +153,14 @@ double get_double_input(const char* prompt) {
 }
 
 // ------ Stack implementation functions ------
+// The stack is a datatype that can be thought of like a stack of plates or books.
+// You can add (push) items or remove (pop) them from the top, but you can't access arbitrary
+// indices like you can with a normal array.
+// A malloc() based approach is preferable to 'pretending' an array is a stack, because deleting
+// or popping elements from traditional arrays is apparently quite difficult; this method gives 
+// full access to the memory supporting the data structure, so deleting is as simple as moving
+// the end pointer. Note that when this is done, the memory remains allocated in case it is needed
+// for an item pushed at some later time.
 
 /*
  * Function: InitStack(capacity)
@@ -182,7 +190,7 @@ struct Stack InitStack(int capacity) {
 /*
  * Function: PushStack(stack, value)
  *
- * Description: Factory method for creating and initializing stacks
+ * Description: Method for adding items to the top of a stack
  * Parameters: stack, the stack to push to
  *             value, the value to push onto the stack
  * Returns: none
@@ -202,7 +210,7 @@ void PushStack(struct Stack *stack, char value) {
 /*
  * Function: PopStack(stack)
  *
- * Description: Factory method for creating and initializing stacks
+ * Description: Deletes item from the top of a stack
  * Parameters: stack, the stack to pop from
  * Returns: The value that was popped from the stack
  */
@@ -222,6 +230,55 @@ char PopStack(struct Stack *stack) {
     printf("Popped: %c\n", data);
     return data;
 }
+
+/*
+ * Function GetTopOfStack(stack)
+ * 
+ * Description: Gets the top element of the stack
+ * Parameters: stack, the stack to get the top of
+ * Returns: The element at the top of the stack given
+ */
+
+char GetTopOfStack(struct Stack *stack) {
+    if (IsStackEmpty(stack)) {
+        printf("Attempted to access top of empty stack!");
+        return NULL;
+    }
+
+    return stack->top; // These methods that simply return a property may not seem necessary, but
+                       // they are there so that none of the stack's properties have to be
+                       // accessed through normal code - and can instead be obtained by passing
+                       // the stack to various functions. It feels 'dangerous' to be playing with
+                       // the memory addresses/internal properties contained in the stack, even for 
+                       // small things, so it is probably best to avoid doing so altogether except
+                       // in pre-defined functions like this one.
+}
+
+/*
+ * Function IsStackEmpty(stack)
+ * 
+ * Description: Checks if the stack has any elements in it
+ * Parameters: stack, the stack to examine
+ * Returns: An integer - 0 = stack not empty / 1 = stack is empty
+ */
+
+int IsStackEmpty(struct Stack *stack) {
+    return (stack->size == 0);
+}
+
+/*
+ * Function DeleteStack(stack)
+ * 
+ * Description: Frees up the memory allocated by a stack
+ * Parameters: stack, the stack to delete/free up
+ * Returns: none
+ */
+
+void DeleteStack(struct Stack *stack) {
+    free(stack->start);
+}
+
+
 
 
 
