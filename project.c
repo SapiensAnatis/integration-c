@@ -9,8 +9,8 @@
 
 int menu();
 
-double get_double_input(const char* prompt);
-const char* get_string_input(const char* prompt);
+double get_double_input(const char*);
+const char* get_string_input(const char*);
 
 /*
  * --------------------------
