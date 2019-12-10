@@ -2,19 +2,24 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* --------------------------
+/* 
+ * --------------------------
  * Prototype functions
  * --------------------------
  */
 
 int menu();
-
 double get_double_input(const char*);
-const char* get_string_input(const char*);
+
+/* 
+ * --------------------------
+ * Function definitions
+ * --------------------------
+ */
 
 /*
  * --------------------------
- * Function: menu()
+ * Function: main()
  * --------------------------
  * Description: Main subroutine of the program. Executed on startup
  * Returns: Exit code, giving information about how the program performed (system dependant)
@@ -31,15 +36,21 @@ int main() {
 
         // Else, continue on with the program
         // Next step: get input (expression, h, range)
-        char *expression; // The expression to evaluate
+        char expression[64]; // The expression to evaluate
         double h; // The width of the strips used in the approximation
         double start; // The lower value of the range
         double end; // The upper value of the range
 
-        expression = get_string_input("Please enter a mathematical expression to integrate: ");
+        // Getting expression doesn't involve a function call, since it's just 2 lines and only one
+        // string is ever taken from user input
+        printf("Please enter an expression to perform integration of: ");
+        fgets(expression, 65, stdin);
+
         h = get_double_input("Please enter a value for the strip width: ");
         start = get_double_input("Please enter the lower limit of integration: ");
         end = get_double_input("Please enter the upper limit of integration: ");
+
+        
 
         // If they've been silly and start > end, swap them around
         if (start > end) {
@@ -120,21 +131,5 @@ double get_double_input(const char* prompt) {
     }
 }
 
-/*
- * --------------------------
- * Function: get_double_input()
- * --------------------------
- * Description: Displays a prompt to the user (as passed to the function) and returns input given
- * Parameters: char[] prompt - a character array (string) prompt which is given to printf() to be 
- *             shown to the user to inform their choice
- * Returns: string given as input from fgets(.., .., stdin)
- */
 
-const char* get_string_input(const char* prompt) {
-    printf(prompt);
-
-    char buffer[255];
-    fgets(buffer, 256, stdin);
-    return buffer;
-}
 
