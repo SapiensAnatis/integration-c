@@ -245,13 +245,12 @@ char GetTopOfStack(struct Stack *stack) {
         return NULL;
     }
 
-    return stack->top; // These methods that simply return a property may not seem necessary, but
-                       // they are there so that none of the stack's properties have to be
-                       // accessed through normal code - and can instead be obtained by passing
-                       // the stack to various functions. It feels 'dangerous' to be playing with
-                       // the memory addresses/internal properties contained in the stack, even for 
-                       // small things, so it is probably best to avoid doing so altogether except
-                       // in pre-defined functions like this one.
+    return stack->top; 
+    
+    // These methods that simply return a property may not seem necessary, but I prefer that I have
+    // them so that I never have to directly access the properties of the stack, since some of them
+    // are memory addresses which could cause things to go wrong. It's much easier if direct access
+    // is only performed inside a few controlled methods.
 }
 
 /*
