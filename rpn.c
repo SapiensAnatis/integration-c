@@ -9,7 +9,7 @@
  * ----------------------------------------------
  */
 
-enum TokenType {
+enum Token_Type {
     Operator, 
     Number,
     Variable,
@@ -31,16 +31,16 @@ struct Token {
  * ----------------------------------------------
  */
 
-// Function: ExpressionToTokens(expression, length)
+// Function: exp_to_tokens(expression, length)
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]
 // Parameters: expression, the string to be stripped
 // Outputs: The stripped string (string is not modified in-place)
 
-struct Token* ExpressionToTokens(char *expression) {
-    int maxTokens = strlen(expression); // Maximum number of tokens (if expression solely
+struct Token* exp_to_tokens(char *expression) {
+    int max_tokens = strlen(expression); // Maximum number of tokens (if expression solely
                                               // consisted of 1-character tokens)
 
-    struct Token* output = malloc(maxTokens * sizeof(struct Token));
+    struct Token* output = malloc(max_tokens * sizeof(struct Token));
     if (output == NULL) { // malloc() returns null if it can't allocate, usually because of no RAM
         printf("Unable to allocate memory for stack! Please check that you have enough RAM free.");
         exit(EXIT_FAILURE); // Fatal error; program needs to quit
@@ -78,14 +78,14 @@ struct Stack {
 
 
 /*
- * Function: InitStack(capacity)
+ * Function: init_stack(capacity)
  *
  * Description: Factory method for creating and initializing stacks
  * Parameters: capacity - the maximum length of the stack
  * Returns: Empty stack with the capacity specified
  */
 
-struct Stack InitStack(int capacity) {
+struct Stack init_stack(int capacity) {
     struct Stack s;
     s.start = malloc(capacity * sizeof(char)); // allocate a block of memory for the array
     
@@ -96,14 +96,14 @@ struct Stack InitStack(int capacity) {
 
     // Once malloc has succeeded, can now assign the other properties
     s.capacity = capacity;
-    s.top = s.start - 1; // First value should be at s.start, and PushStack assigns to s.top + 1
+    s.top = s.start - 1; // First value should be at s.start, and push_stack assigns to s.top + 1
     s.size = 0;
 
     return s;
 }
 
 /*
- * Function: PushStack(stack, value)
+ * Function: push_stack(stack, value)
  *
  * Description: Method for adding items to the top of a stack
  * Parameters: stack, the stack to push to
@@ -111,7 +111,7 @@ struct Stack InitStack(int capacity) {
  * Returns: none
  */
 
-void PushStack(struct Stack *stack, char value) {
+void push_stack(struct Stack *stack, char value) {
     if (stack->size + 1 > stack->capacity) {
         printf("Stack full! Value not pushed.");
         return;
@@ -123,14 +123,14 @@ void PushStack(struct Stack *stack, char value) {
 }
 
 /*
- * Function: PopStack(stack)
+ * Function: pop_stack(stack)
  *
  * Description: Deletes item from the top of a stack
  * Parameters: stack, the stack to pop from
  * Returns: The value that was popped from the stack
  */
 
-char PopStack(struct Stack *stack) {
+char pop_stack(struct Stack *stack) {
     if (stack->size == 0) {
         printf("Stack is already empty! Value not popped.");
         return;
@@ -147,15 +147,15 @@ char PopStack(struct Stack *stack) {
 }
 
 /*
- * Function GetTopOfStack(stack)
+ * Function get_stack_top(stack)
  * 
  * Description: Gets the top element of the stack
  * Parameters: stack, the stack to get the top of
  * Returns: The element at the top of the stack given
  */
 
-char GetTopOfStack(struct Stack *stack) {
-    if (IsStackEmpty(stack)) {
+char get_stack_top(struct Stack *stack) {
+    if (is_stack_empty(stack)) {
         printf("Attempted to access top of empty stack!");
         return NULL;
     }
@@ -169,25 +169,25 @@ char GetTopOfStack(struct Stack *stack) {
 }
 
 /*
- * Function IsStackEmpty(stack)
+ * Function is_stack_empty(stack)
  * 
  * Description: Checks if the stack has any elements in it
  * Parameters: stack, the stack to examine
  * Returns: An integer - 0 = stack not empty / 1 = stack is empty
  */
 
-int IsStackEmpty(struct Stack *stack) {
+int is_stack_empty(struct Stack *stack) {
     return (stack->size == 0);
 }
 
 /*
- * Function DeleteStack(stack)
+ * Function delete_stack(stack)
  * 
  * Description: Frees up the memory allocated by a stack
  * Parameters: stack, the stack to delete/free up
  * Returns: none
  */
 
-void DeleteStack(struct Stack *stack) {
+void delete_stack(struct Stack *stack) {
     free(stack->start);
 }

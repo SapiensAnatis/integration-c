@@ -6,7 +6,7 @@
 enum TokenType;
 struct Token;
 
-Token* ExpressionToTokens(char*);
+Token* exp_to_tokens(char*);
 Token* InfixToRPN(char*);
 double EvaluateRPN(char*, double);
 
@@ -17,8 +17,10 @@ int TokenIsFunction(char*);
 // Stacks
 
 struct Stack;
-void PushStack(struct Stack*, char);
-char PopStack(struct Stack*);
-void DeleteStack(struct Stack*);
+void push_stack(struct Stack*, char);
+char pop_stack(struct Stack*);
+int get_stack_top(struct Stack*);
+int is_stack_empty(struct Stack*);
+void delete_stack(struct Stack*);
 
 #endif
