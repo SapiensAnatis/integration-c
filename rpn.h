@@ -1,3 +1,5 @@
+#include <pcre.h> // type references
+
 #ifndef RPN_H_INCLUDED
 #define RPN_H_INCLUDED
 
@@ -7,7 +9,8 @@ enum TokenType;
 enum Associativity;
 struct Token;
 
-struct Token* exp_to_tokens(char*);
+struct Stack* exp_to_tokens(char*);
+void compile_regex(char*, pcre, pcre_extra);
 struct Stack* infix_to_RPN(char*);
 double evaluate_RPN(char*, double);
 

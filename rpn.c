@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <pcre.h> // perl-compatible regexes, more modern
+#define OVECCOUNT 30
 
 // ------ Shunting yard / RPN-related definitions ------
 
@@ -24,7 +26,8 @@ enum Associativity {
 };
 
 struct Token {
-    char text[16]; // if you want to use numbers with >15 digits then use someone else's program
+    char text[4]; // Field is not for numbers; next longest thing is sin/cos/etc = 3 chars + \0
+    double value; // This is for numbers. Easier to use double than having two fields for int/float
     enum Token_Type type;
     // Operator-exclusive properties, but as Stack is monotype they're in the general Token struct
     int precedence;
@@ -48,7 +51,65 @@ struct Stack *exp_to_tokens(char *expression) {
     // in the recognized token, and repeat until the pointer points to \0
 
     struct Stack *output = init_stack(strlen(expression)); // Initialize output
+
+    // Initialize all needed regexes outside of the loop for efficiency
+    int pcreExecRet;
+
+    // Number token regex:
+    // Match any number of digits, then, optionally, a decimal point followed by more digits
+    pcre *num_regex_comp;
+    pcre_extra *num_regex_ex;
+    char *num_regex = "^\\d+(\\.\\d+)?"; 
+    compile_regex(num_regex, num_regex_comp, num_regex_ex);
+
+    // Function token regex:
+    // Match functions in a list (much easier than matching any 2-3 chars and checking if valid)
+    pcre *func_regex_comp;
+    pcre_extra *func_regex_ex;
+    char *func_regex = "^(sin|cos|tan|ln|exp|log)";
+    compile_regex(func_regex, func_regex_comp, func_regex_ex);
+    
+    // The remaining possible tokens (brackets, operators, etc) are all one-character so don't need
+    // their own regex
+
+    // Loop of matching
+    while (expression != NULL && expression[0] != '\0') {
+
+    }
 }
+
+// Function: compile_regex
+// Description: Compiles and optimizes (by way of pcre_study) a regex & handles any errors
+// Parameters: regex_str, the string literal regular expression,
+//             output, the pointer to the pcre object which the compilation result is saved to
+//             study_output, the pointer to the pcre_extra object which study output is saved to
+// Outputs: None
+
+void compile_regex(char *regex_str, pcre *output, pcre_extra *study_output) {
+    char* error_str;
+    int error_offset;
+
+    output = pcre_compile(regex_str, 0, &error_str, error_offset, NULL);
+    if (output == NULL) {
+        printf("Regex compilation error (offset = %d): could not compile regex '%s': %s\n",
+        error_offset, regex_str, error_str);
+        exit(EXIT_FAILURE);
+    }
+
+    study_output = pcre_study(output, 0, &error_str);
+    if (error_str != NULL) {
+        printf("Could not study regex '%s': %s\n",
+        regex_str, error_str);
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+
+// Function: scan_tokens(exp_substr)
+// Description: Uses Regex to scan for any tokens that begin at the start of exp_substr
+// Parameters: exp_substr, the string to scan - usually but not always a substring of an expression
+// Outputs: a Token object representing a match found, or an uninitialized token if no match found
 
 
 // ------ Stack definitions ------
