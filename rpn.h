@@ -1,8 +1,21 @@
 #ifndef RPN_H_INCLUDED
 #define RPN_H_INCLUDED
 
-void FormatExpression(char *expression);
-char* InfixToRPN(char *expression);
-double EvaluateRPN(char *rpn_expression, double x);
+// Shunting yard/RPN
+
+char* ExpressionToTokens(char*);
+char* InfixToRPN(char*);
+double EvaluateRPN(char*, double);
+
+int TokenIsOperator(char);
+int TokenIsNumber(char);
+int TokenIsFunction(char*);
+
+// Stacks
+
+struct Stack;
+void PushStack(struct Stack*, char);
+char PopStack(struct Stack*);
+void DeleteStack(struct Stack*);
 
 #endif
