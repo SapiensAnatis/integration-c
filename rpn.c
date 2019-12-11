@@ -17,12 +17,17 @@ enum Token_Type {
     Function
 };
 
+enum Associativity {
+    Left,
+    Right
+};
+
 struct Token {
     char text[16]; // if you want to use numbers with >15 digits then use someone else's program
     enum Token_Type type;
     // Operator-exclusive properties, but as Stack is monotype they're in the general Token struct
     int precedence;
-    int isRightAssociative; // 0 = left, 1 = right 
+    enum Associativity associativity;
 };
 
 /*
