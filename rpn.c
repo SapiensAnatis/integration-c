@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 // ------ Shunting yard / RPN-related definitions ------
 
@@ -39,10 +40,14 @@ struct Token {
 // Function: exp_to_tokens(expression, length)
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]
 // Parameters: expression, the string to be tokenized
-// Outputs: Pointer to a stack of all tokens
+// Outputs: A stack of all tokens
 
-struct Stack* exp_to_tokens(char *expression) {
-    
+struct Stack *exp_to_tokens(char *expression) {
+    // Starting at the pointer for the string, run several regexes on the remainder of the string
+    // until a token is recognized. Then move the pointer forward by the number of characters
+    // in the recognized token, and repeat until the pointer points to \0
+
+    struct Stack *output = init_stack(strlen(expression)); // Initialize output
 }
 
 // ------ Stack definitions ------
@@ -83,19 +88,19 @@ struct Stack {
  * Returns: Empty stack with the capacity specified
  */
 
-struct Stack init_stack(int capacity) {
-    struct Stack s;
-    s.start = malloc(capacity * sizeof(struct Token)); // allocate a block of memory for the array
+struct Stack *init_stack(int capacity) {
+    struct Stack *s = malloc(sizeof(struct Stack));
+    s->start = malloc(capacity * sizeof(struct Token)); // allocate a block of memory for the array
     
-    if (s.start == NULL) {
+    if (s->start == NULL) {
         printf("Unable to allocate memory for stack! Please check that you have enough RAM free.");
         exit(EXIT_FAILURE);
     }
 
     // Once malloc has succeeded, can now assign the other properties
-    s.capacity = capacity;
-    s.top = s.start - 1; // First value should be at s.start, and push_stack assigns to s.top + 1
-    s.size = 0;
+    s->capacity = capacity;
+    s->top = s->start - 1; // First value should be at s.start, and push_stack assigns to s.top + 1
+    s->size = 0;
 
     return s;
 }
