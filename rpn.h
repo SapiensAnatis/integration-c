@@ -7,10 +7,10 @@ enum TokenType;
 struct Token;
 
 Token* exp_to_tokens(char*);
-Token* InfixToRPN(char*);
-double EvaluateRPN(char*, double);
+void infix_to_RPN(char*);
+double evaluate_RPN(char*, double);
 
-int TokenIsOperator(char);
+int token_is_operator(char);
 int TokenIsNumber(char);
 int TokenIsFunction(char*);
 
