@@ -16,22 +16,49 @@ enum Token_Type {
     Operator, 
     Number,
     Variable,
-    Bracket,
+    Bracket_Left, // having a separate enum for bracket and (left, right) seems a bit silly to me
+    Bracket_Right,
     Function
 };
 
-enum Associativity {
-    Left,
-    Right
+enum Operator_Type {
+    Op_Add,
+    Op_Subtract,
+    Op_Multiply,
+    Op_Divide,
+    Op_Power
 };
 
+enum Associativity {
+    Assoc_Left,
+    Assoc_Right
+};
+
+enum Function_Type {
+    Func_Sin,
+    Func_Cos,
+    Func_Tan,
+    Func_Ln,
+    Func_Exp,
+    Func_Log
+};
+
+// The reason why there are both Function and Operator fields, as well as Function_Type is so that
+// when it comes time to evaluate the RPN expression, it is possible to both examine "is the token
+// a function" and "what function is the token". If we only stored function types, to check the
+// former would require `if token.Function_Type != null` which is less readable
+
 struct Token {
-    char text[4]; // Field is not for numbers; next longest thing is sin/cos/etc = 3 chars + \0
-    double value; // This is for numbers. Easier to use double than having two fields for int/float
     enum Token_Type type;
-    // Operator-exclusive properties, but as Stack is monotype they're in the general Token struct
+    // Number-exclusive property, but as Stack is monotype all tokens must have these properties
+    // They will be null/uninitialized for token types that don't use them, though
+    double value; 
+    // Operator-exclusive properties
+    enum Operator_Type operator_type;
     int precedence;
     enum Associativity associativity;
+    // Function-exclusive properties
+    enum Function_Type function_type;
 };
 
 /*
@@ -51,9 +78,78 @@ struct Stack *exp_to_tokens(char *expression) {
     // in the recognized token, and repeat until the pointer points to \0
 
     struct Stack *output = init_stack(strlen(expression)); // Initialize output
+    
+    // Initialize all preset tokens
+    // (i.e. all except numbers)
+    // Could do this before the push, but then they'd be declared every time they're needed
+    // This way is messier but it means they only get declared once
+    // So, I'm sorry about this....but it's for 'the greater good'
+    #pragma region Token_Defs
+
+    const struct Token bracket_l = {
+        .type = Bracket_Left,
+    };
+    const struct Token bracket_r = {
+        .type = Bracket_Right,
+    };
+    const struct Token power = {
+        .type = Operator,
+        .operator_type = Op_Power,
+        .precedence = 3,
+        .associativity = Assoc_Right
+    };
+    const struct Token multiply = {
+        .type = Operator,
+        .operator_type = Op_Multiply,
+        .precedence = 3,
+        .associativity = Assoc_Left
+    };
+    const struct Token divide = {
+        .type = Operator,
+        .operator_type = Op_Divide,
+        .precedence = 3,
+        .associativity = Assoc_Left
+    };
+    const struct Token add = {
+        .type = Operator,
+        .operator_type = Op_Add,
+        .precedence = 2,
+        .associativity = Assoc_Left
+    };
+    const struct Token subtract = {
+        .type = Operator,
+        .operator_type = Op_Subtract,
+        .precedence = 2,
+        .associativity = Assoc_Left
+    };
+    const struct Token sin = {
+        .type = Function,
+        .function_type = Func_Sin
+    };
+    const struct Token cos = {
+        .type = Function,
+        .function_type = Func_Cos
+    };
+    const struct Token tan = {
+        .type = Function, 
+        .function_type = Func_Tan
+    };
+    const struct Token ln = {
+        .type = Function,
+        .function_type = Func_Ln
+    };
+    const struct Token log = {
+        .type = Function,
+        .function_type = Func_Log
+    };
+    const struct Token exp = {
+        .type = Function,
+        .function_type = Func_Exp
+    };
+
+    #pragma endregion
 
     // Initialize all needed regexes outside of the loop for efficiency
-    int pcreExecRet;
 
     // Number token regex:
     // Match any number of digits, then, optionally, a decimal point followed by more digits
@@ -74,7 +170,33 @@ struct Stack *exp_to_tokens(char *expression) {
 
     // Loop of matching
     while (expression != NULL && expression[0] != '\0') {
-
+        if (expression[0] = '(') {
+            push_stack(output, bracket_l);
+            expression++;
+        }
+        else if (expression[0] = ')') {
+            push_stack(output, bracket_r);
+            expression++; // Move forward 1 character
+        }
+        else if (expression[0] = '^') {
+            push_stack(output, power);
+            expression++;
+        }
+        else if (expression[0] = '*') {
+            push_stack(output, multiply);
+            expression++;
+        }
+        else if (expression[0] = '/') {
+            push_stack(output, divide);
+            expression++;
+        }
+        else if (expression[0] = '+') {
+            push_stack(output, add);
+            expression++;
+        }
+        else if (expression[0] = '-') {
+            push_stack(output, subtract);
+        }
     }
 }
 
@@ -89,7 +211,7 @@ void compile_regex(char *regex_str, pcre *output, pcre_extra *study_output) {
     char* error_str;
     int error_offset;
 
-    output = pcre_compile(regex_str, 0, &error_str, error_offset, NULL);
+    output = pcre_compile(regex_str, 0, &error_str, &error_offset, NULL);
     if (output == NULL) {
         printf("Regex compilation error (offset = %d): could not compile regex '%s': %s\n",
         error_offset, regex_str, error_str);
@@ -102,6 +224,15 @@ void compile_regex(char *regex_str, pcre *output, pcre_extra *study_output) {
         regex_str, error_str);
         exit(EXIT_FAILURE);
     }
+}
+
+// Function: generate_token(string_form)
+// Description: Generates a Token struct from a string representation of a token
+// Parameters: string_form, a string representation of a token - e.g. ")"
+// Outputs: A token with the correct properties for the string
+
+struct Token generate_token(char* string_form) {
+
 }
 
 
