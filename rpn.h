@@ -7,8 +7,8 @@ enum TokenType;
 enum Associativity;
 struct Token;
 
-Token* exp_to_tokens(char*);
-void infix_to_RPN(char*);
+struct Token* exp_to_tokens(char*);
+struct Stack* infix_to_RPN(char*);
 double evaluate_RPN(char*, double);
 
 // Stacks

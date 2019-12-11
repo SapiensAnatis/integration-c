@@ -40,14 +40,10 @@ struct Token {
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]
 // Parameters: expression, the string to be stripped
 //             array_ptr, the return value of malloc(strlen(expression) * sizeof(struct Token))
-// Outputs: The number of tokens generated
+// Outputs: Pointer to a stack of all tokens
 
-int exp_to_tokens(char *expression, struct Token* array_ptr) {
-    // Parameters ask that malloc() be performed before a function call, as otherwise the function
-    // would need to output both the address to the start of the array AND its length, which is
-    // somewhat irritating to do. The size allocated should be equal to the number of characters
-    // in the expression multiplied by the size of the Token struct - as this is the space needed
-    // if every single character in the expression turns out to be a token (not usually the case)
+struct Stack* exp_to_tokens(char *expression) {
+    
 }
 
 // ------ Stack definitions ------
