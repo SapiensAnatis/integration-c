@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <pcre.h> // perl-compatible regexes, more modern
-#define OVECCOUNT 30
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h> // perl-compatible regexes, more modern
 
 // ------ Shunting yard / RPN-related definitions ------
 
@@ -78,8 +78,9 @@ struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errn
     // Starting at the pointer for the string, run several regexes on the remainder of the string
     // until a token is recognized. Then move the pointer forward by the number of characters
     // in the recognized token, and repeat until the pointer points to \0
-
-    struct Stack *output = init_stack(strlen(expression)); // Initialize output
+    
+    // Initialize output
+    struct Stack *output = init_stack(strlen(expression)); 
     
     // Initialize all preset tokens
     // (i.e. all except numbers)
@@ -152,107 +153,126 @@ struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errn
     #pragma endregion
 
     // Will also be helpful to keep track of the last token for filling in implicit multiplication
+    // i.e. "if last token was a number and this token is a function" for things like 4sin(45)
     struct Token prev_token;
 
-    // Initialize all needed regexes outside of the loop for efficiency
+    // Initialize regex options
+    int errornumber;
+    int find_all = 0; // only want one match from regexes
+    pcre2_match_data *match_data;
+    int rc;
+    PCRE2_SPTR subject;
+    PCRE2_SIZE *ovector;
 
+    // Initialize all needed regexes outside of the loop for efficiency
     // Number token regex:
     // Match any number of digits, then, optionally, a decimal point followed by more digits
-    pcre *num_regex_comp;
-    pcre_extra *num_regex_ex;
+    pcre2_code *num_regex_comp;
     char *num_regex = "^\\d+(\\.\\d+)?"; 
-    compile_regex(num_regex, num_regex_comp, num_regex_ex);
+    compile_regex(num_regex, num_regex_comp);
 
     // Function token regex:
     // Match functions in a list (much easier than matching any 2-3 chars and checking if valid)
-    pcre *func_regex_comp;
-    pcre_extra *func_regex_ex;
+    pcre2_code *func_regex_comp;
     char *func_regex = "^(sin|cos|tan|ln|exp|log)";
-    compile_regex(func_regex, func_regex_comp, func_regex_ex);
+    compile_regex(func_regex, func_regex_comp);
     
     // The remaining possible tokens (brackets, operators, etc) are all one-character so don't need
     // their own regex
 
     // Loop of matching
     while (expression != NULL && expression[0] != '\0') {
-        if (expression[0] = '(') {
-            push_stack(output, bracket_l);
-            prev_token = bracket_l;
-            expression++;
+        switch(expression[0]) {
+            case '(':
+                push_stack(output, bracket_l);
+                prev_token = bracket_l;
+                expression++; // Move forward 1 character
+                continue; // Next iteration of the loop
+            case ')':
+                push_stack(output, bracket_r);
+                prev_token = bracket_r;
+                expression++;
+                continue;
+            case '^':
+                push_stack(output, power);
+                prev_token = power;
+                expression++;
+                continue;
+            case '*':
+                push_stack(output, multiply);
+                prev_token = multiply;
+                expression++;
+                continue;
+            case '/':
+                push_stack(output, divide);
+                prev_token = divide;
+                expression++;
+                continue;
+            case '+':
+                push_stack(output, add);
+                prev_token = add;
+                expression++;
+                continue;
+            case '-':
+                push_stack(output, subtract);
+                prev_token = subtract;
+                expression++;
+                continue;
         }
-        else if (expression[0] = ')') {
-            push_stack(output, bracket_r);
-            prev_token = bracket_r;
-            expression++; // Move forward 1 character
+        
+        // If none of those matched, then start using regex
+        // (this can only be reached by avoiding the above continues)
+        subject = (PCRE2_SPTR)expression;
+        match_data = pcre2_match_data_create_from_pattern(num_regex_comp, NULL);
+        rc = pcre2_match(
+            num_regex_comp,
+            expression,
+            strlen(expression),
+            0,
+            0,
+            match_data,
+            NULL
+        );
+        if (rc > 0) {
+            ovector = pcre2_get_ovector_pointer(match_data);
+            printf("Match succeesed at offset %d\n", (int)ovector[0]);
+            for (int i = 0; i < rc; i++) {
+                PCRE2_SPTR substring_start = subject + ovector[2*i];
+                size_t substring_length = ovector[2*i+1] - ovector[2*i];
+                printf("%2d: %.*s\n", i, (int)substring_length, (char *)substring_start);
+            }
         }
-        else if (expression[0] = '^') {
-            push_stack(output, power);
-            prev_token = power;
-            expression++;
-        }
-        else if (expression[0] = '*') {
-            push_stack(output, multiply);
-            prev_token = multiply;
-            expression++;
-        }
-        else if (expression[0] = '/') {
-            push_stack(output, divide);
-            prev_token = divide;
-            expression++;
-        }
-        else if (expression[0] = '+') {
-            push_stack(output, add);
-            prev_token = add;
-            expression++;
-        }
-        else if (expression[0] = '-') {
-            push_stack(output, subtract);
-            prev_token = subtract;
-            expression;
-        }
-        else {
-            // If none of those matched, then we need to start using regex
+        else if (rc == PCRE2_ERROR_NOMATCH) { // match failed
+            printf("No match found for number regex");
+        }    
 
-        }
+        pcre2_match_data_free(match_data);
     }
+
+    pcre2_code_free(func_regex_comp);
 }
 
 // Function: compile_regex
 // Description: Compiles and optimizes (by way of pcre_study) a regex & handles any errors
 // Parameters: regex_str, the string literal regular expression,
 //             output, the pointer to the pcre object which the compilation result is saved to
-//             study_output, the pointer to the pcre_extra object which study output is saved to
 // Outputs: None
 
-void compile_regex(char *regex_str, pcre *output, pcre_extra *study_output) {
-    char* error_str;
-    int error_offset;
+void compile_regex(char *regex_str, pcre2_code *output) {
+    int error_num;
+    PCRE2_SIZE error_offset;
+    
+    PCRE2_SPTR pattern = (PCRE2_SPTR)regex_str;
+    output = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0, &error_num, &error_offset, NULL);
 
-    output = pcre_compile(regex_str, 0, &error_str, &error_offset, NULL);
     if (output == NULL) {
+        PCRE2_UCHAR buffer[256];
+        pcre2_get_error_message(error_num, buffer, sizeof(buffer));
         printf("Regex compilation error (offset = %d): could not compile regex '%s': %s\n",
-        error_offset, regex_str, error_str);
-        exit(EXIT_FAILURE);
-    }
-
-    study_output = pcre_study(output, 0, &error_str);
-    if (error_str != NULL) {
-        printf("Could not study regex '%s': %s\n",
-        regex_str, error_str);
+            (int)error_offset, buffer);
         exit(EXIT_FAILURE);
     }
 }
-
-// Function: generate_token(string_form)
-// Description: Generates a Token struct from a string representation of a token
-// Parameters: string_form, a string representation of a token - e.g. ")"
-// Outputs: A token with the correct properties for the string
-
-struct Token generate_token(char* string_form) {
-
-}
-
-
 
 // Function: scan_tokens(exp_substr)
 // Description: Uses Regex to scan for any tokens that begin at the start of exp_substr
