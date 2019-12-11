@@ -80,6 +80,8 @@ int main() {
 
     printf("Input: %s\nOutput:", expression);
     print_tokenized(tokenized, num_tokens);
+
+    free(tokenized);
 }
 
 void print_tokenized(struct Token *token_arr_ptr, int token_count) {
@@ -209,7 +211,8 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
     int errornumber;
     int find_all = 0; // only want one match from regexes
     pcre2_match_data *match_data;
-    int rc;
+    int rc1;
+    int rc2;
     PCRE2_SPTR subject;
     PCRE2_SIZE *ovector;
 
@@ -231,7 +234,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
 
     // Loop of matching
     while (expression != NULL && expression[0] != '\0') {
-        printf("Operating on substring %s\n", expression);
+        //printf("Operating on substring %s\n", expression);
         switch(expression[0]) {
             case '(':
                 push_stack(output, bracket_l);
@@ -268,15 +271,21 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
                 prev_token = subtract;
                 expression++;
                 continue;
-            default:
+            case ' ': // no action required, move on
+                expression++;
+                continue;
+            default: // break out to regex statements
                 break;
         }
         
         // If none of those matched, then start using regex
         // (this can only be reached by avoiding the above continues)
+
+        // Number regex
         subject = (PCRE2_SPTR)expression;
         match_data = pcre2_match_data_create_from_pattern(num_regex_comp, NULL);
-        rc = pcre2_match(
+
+        rc1 = pcre2_match(
             num_regex_comp,
             expression,
             strlen(expression),
@@ -285,36 +294,39 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             match_data,
             NULL
         );
-        if (rc > 0) {
+        if (rc1 > 0) {
             ovector = pcre2_get_ovector_pointer(match_data);
             //printf("Number match succeesed at offset %d\n", (int)ovector[0]);
-            for (int i = 0; i < 1; i++) {
-                // Disclaimer, I have no idea what this does
-                PCRE2_SPTR substring_start = subject + ovector[2*i];
-                size_t substring_length = ovector[2*i+1] - ovector[2*i];
-                // End disclaimer, this next bit I understand                
-                char *substring = malloc(substring_length * sizeof(char));
-                memcpy(substring, substring_start, substring_length);
 
-                double d = strtod(substring, NULL);
-                printf("\tMatch found (length %d): %f\n", substring_length, d);
+            // Disclaimer, I have no idea what this does
+            // Normally it's done in a loop for match groups, but not interested in those, only
+            // the full match
+            PCRE2_SPTR substring_start = subject + ovector[0];
+            size_t substring_length = ovector[1] - ovector[0];
+            // End disclaimer, this next bit I understand 
+            // Make a space to copy the string into               
+            char *substring = malloc(substring_length * sizeof(char));
+            memcpy(substring, substring_start, substring_length);
 
-                struct Token num_token = {
-                    .type = Number,
-                    .value = d
-                };
+            // Convert said string to a double
+            double d = strtod(substring, NULL);
+            // No longer need it, so
+            free(substring);
+            //printf("\tMatch found (length %d): %f\n", substring_length, d);
 
-                push_stack(output, num_token);
-                prev_token = num_token;
+            struct Token num_token = {
+                .type = Number,
+                .value = d
+            };
 
-                free(substring);
-
-                expression += substring_length;
-            }
-            
+            push_stack(output, num_token);
+            prev_token = num_token;
+            expression += substring_length;
+    
             continue;
         }
-        else if (rc == PCRE2_ERROR_NOMATCH) { // match failed
+        else if (rc1 == PCRE2_ERROR_NOMATCH && rc2 == PCRE2_ERROR_NOMATCH) { 
+            // match failed - probably due to a space or similar
             //printf("No match found for number regex");
             expression++;
             continue;
