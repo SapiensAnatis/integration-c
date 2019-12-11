@@ -39,17 +39,15 @@ struct Token {
 // Function: exp_to_tokens(expression, length)
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]
 // Parameters: expression, the string to be stripped
-// Outputs: The stripped string (string is not modified in-place)
+//             array_ptr, the return value of malloc(strlen(expression) * sizeof(struct Token))
+// Outputs: The number of tokens generated
 
-struct Token* exp_to_tokens(char *expression) {
-    int max_tokens = strlen(expression); // Maximum number of tokens (if expression solely
-                                              // consisted of 1-character tokens)
-
-    struct Token* output = malloc(max_tokens * sizeof(struct Token));
-    if (output == NULL) { // malloc() returns null if it can't allocate, usually because of no RAM
-        printf("Unable to allocate memory for stack! Please check that you have enough RAM free.");
-        exit(EXIT_FAILURE); // Fatal error; program needs to quit
-    }
+int exp_to_tokens(char *expression, struct Token* array_ptr) {
+    // Parameters ask that malloc() be performed before a function call, as otherwise the function
+    // would need to output both the address to the start of the array AND its length, which is
+    // somewhat irritating to do. The size allocated should be equal to the number of characters
+    // in the expression multiplied by the size of the Token struct - as this is the space needed
+    // if every single character in the expression turns out to be a token (not usually the case)
 }
 
 // ------ Stack definitions ------
