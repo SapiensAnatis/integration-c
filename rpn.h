@@ -4,6 +4,7 @@
 // Shunting yard/RPN
 
 enum TokenType;
+enum Associativity;
 struct Token;
 
 Token* exp_to_tokens(char*);
