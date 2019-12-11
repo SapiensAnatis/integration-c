@@ -196,4 +196,5 @@ int is_stack_empty(struct Stack *stack) {
 
 void delete_stack(struct Stack *stack) {
     free(stack->start);
+    free(stack);
 }
