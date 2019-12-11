@@ -11,17 +11,18 @@ enum Function_Type;
 enum Associativity;
 struct Token;
 
-struct Stack* exp_to_tokens(char*);
-void compile_regex(char*, pcre2_code);
+int exp_to_tokens(char*, struct Token*);
+void compile_regex(char*, pcre2_code**);
 struct Stack* infix_to_RPN(char*);
 double evaluate_RPN(char*, double);
 
 // Stacks
 
 struct Stack;
-void push_stack(struct Stack*, char);
-char pop_stack(struct Stack*);
-int get_stack_top(struct Stack*);
+struct Stack *init_stack(int);
+void push_stack(struct Stack*, struct Token);
+struct Token pop_stack(struct Stack*);
+struct Token *get_stack_top(struct Stack*);
 int is_stack_empty(struct Stack*);
 void delete_stack(struct Stack*);
 

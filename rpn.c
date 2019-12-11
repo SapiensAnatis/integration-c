@@ -3,6 +3,7 @@
 #include <string.h>
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h> // perl-compatible regexes, more modern
+#include "rpn.h"
 
 // ------ Shunting yard / RPN-related definitions ------
 
@@ -69,12 +70,30 @@ struct Token {
  * ----------------------------------------------
  */
 
+int main() {
+    char *expression;
+    int num_tokens;
+    strcpy(expression, "2*4*5");
+    struct Token *tokenized = malloc(6 * sizeof(struct Token));
+    num_tokens = exp_to_tokens(expression, tokenized);
+    for (int i = 0; i < num_tokens; i++) {
+        switch(tokenized[i].type) {
+            case Operator:
+                printf("op ");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+
 // Function: exp_to_tokens(expression)
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]
 // Parameters: expression, the string to be tokenized
 // Outputs: A stack of all tokens
 
-struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errno) {
+int exp_to_tokens(char *expression, struct Token *tokenized) {
     // Starting at the pointer for the string, run several regexes on the remainder of the string
     // until a token is recognized. Then move the pointer forward by the number of characters
     // in the recognized token, and repeat until the pointer points to \0
@@ -169,13 +188,13 @@ struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errn
     // Match any number of digits, then, optionally, a decimal point followed by more digits
     pcre2_code *num_regex_comp;
     char *num_regex = "^\\d+(\\.\\d+)?"; 
-    compile_regex(num_regex, num_regex_comp);
+    compile_regex(num_regex, &num_regex_comp);
 
     // Function token regex:
     // Match functions in a list (much easier than matching any 2-3 chars and checking if valid)
     pcre2_code *func_regex_comp;
     char *func_regex = "^(sin|cos|tan|ln|exp|log)";
-    compile_regex(func_regex, func_regex_comp);
+    compile_regex(func_regex, &func_regex_comp);
     
     // The remaining possible tokens (brackets, operators, etc) are all one-character so don't need
     // their own regex
@@ -218,6 +237,8 @@ struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errn
                 prev_token = subtract;
                 expression++;
                 continue;
+            default:
+                break;
         }
         
         // If none of those matched, then start using regex
@@ -235,12 +256,17 @@ struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errn
         );
         if (rc > 0) {
             ovector = pcre2_get_ovector_pointer(match_data);
-            printf("Match succeesed at offset %d\n", (int)ovector[0]);
+            printf("Number match succeesed at offset %d\n", (int)ovector[0]);
             for (int i = 0; i < rc; i++) {
                 PCRE2_SPTR substring_start = subject + ovector[2*i];
                 size_t substring_length = ovector[2*i+1] - ovector[2*i];
-                printf("%2d: %.*s\n", i, (int)substring_length, (char *)substring_start);
+                
+                char *substring = malloc(substring_length * sizeof(char));
+                memcpy(substring, substring_start, substring_length);
+                printf("Match found: %s\n", substring);
             }
+            expression++;
+            continue;
         }
         else if (rc == PCRE2_ERROR_NOMATCH) { // match failed
             printf("No match found for number regex");
@@ -249,7 +275,19 @@ struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errn
         pcre2_match_data_free(match_data);
     }
 
+    // Take the output stack and pop it into an array at the address `tokenized`
+    int i = 0;
+    while (!is_stack_empty(output)) {
+        // Write to the pointer given to the function (expected to be from malloc)
+        struct Token value = pop_stack(output);
+        memcpy(tokenized + i, &value, sizeof(value));
+        i++;
+    }
+
+    pcre2_code_free(num_regex_comp);
     pcre2_code_free(func_regex_comp);
+
+    return i;
 }
 
 // Function: compile_regex
@@ -258,12 +296,12 @@ struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errn
 //             output, the pointer to the pcre object which the compilation result is saved to
 // Outputs: None
 
-void compile_regex(char *regex_str, pcre2_code *output) {
+void compile_regex(char *regex_str, pcre2_code **output) {
     int error_num;
     PCRE2_SIZE error_offset;
     
     PCRE2_SPTR pattern = (PCRE2_SPTR)regex_str;
-    output = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0, &error_num, &error_offset, NULL);
+    *output = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0, &error_num, &error_offset, NULL);
 
     if (output == NULL) {
         PCRE2_UCHAR buffer[256];
@@ -368,8 +406,9 @@ void push_stack(struct Stack *stack, struct Token value) {
 
 struct Token pop_stack(struct Stack *stack) {
     if (stack->size == 0) {
-        printf("Stack is already empty! Value not popped.");
-        return;
+        struct Token t;
+        printf("Stack is already empty! Value not popped. Returning null Token.");
+        return t;
     }
     
     struct Token data;
