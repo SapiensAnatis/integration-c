@@ -29,11 +29,6 @@ enum Operator_Type {
     Op_Power
 };
 
-enum Associativity {
-    Assoc_Left,
-    Assoc_Right
-};
-
 enum Function_Type {
     Func_Sin,
     Func_Cos,
@@ -42,6 +37,13 @@ enum Function_Type {
     Func_Exp,
     Func_Log
 };
+
+
+enum Associativity {
+    Assoc_Left,
+    Assoc_Right
+};
+
 
 // The reason why there are both Function and Operator fields, as well as Function_Type is so that
 // when it comes time to evaluate the RPN expression, it is possible to both examine "is the token
@@ -72,7 +74,7 @@ struct Token {
 // Parameters: expression, the string to be tokenized
 // Outputs: A stack of all tokens
 
-struct Stack *exp_to_tokens(char *expression) {
+struct Stack *exp_to_tokens(char *expression, struct Token *tokenized, int *errno) {
     // Starting at the pointer for the string, run several regexes on the remainder of the string
     // until a token is recognized. Then move the pointer forward by the number of characters
     // in the recognized token, and repeat until the pointer points to \0
@@ -149,6 +151,9 @@ struct Stack *exp_to_tokens(char *expression) {
 
     #pragma endregion
 
+    // Will also be helpful to keep track of the last token for filling in implicit multiplication
+    struct Token prev_token;
+
     // Initialize all needed regexes outside of the loop for efficiency
 
     // Number token regex:
@@ -172,30 +177,42 @@ struct Stack *exp_to_tokens(char *expression) {
     while (expression != NULL && expression[0] != '\0') {
         if (expression[0] = '(') {
             push_stack(output, bracket_l);
+            prev_token = bracket_l;
             expression++;
         }
         else if (expression[0] = ')') {
             push_stack(output, bracket_r);
+            prev_token = bracket_r;
             expression++; // Move forward 1 character
         }
         else if (expression[0] = '^') {
             push_stack(output, power);
+            prev_token = power;
             expression++;
         }
         else if (expression[0] = '*') {
             push_stack(output, multiply);
+            prev_token = multiply;
             expression++;
         }
         else if (expression[0] = '/') {
             push_stack(output, divide);
+            prev_token = divide;
             expression++;
         }
         else if (expression[0] = '+') {
             push_stack(output, add);
+            prev_token = add;
             expression++;
         }
         else if (expression[0] = '-') {
             push_stack(output, subtract);
+            prev_token = subtract;
+            expression;
+        }
+        else {
+            // If none of those matched, then we need to start using regex
+
         }
     }
 }

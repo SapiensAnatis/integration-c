@@ -5,7 +5,9 @@
 
 // Shunting yard/RPN
 
-enum TokenType;
+enum Token_Type;
+enum Operator_Type;
+enum Function_Type;
 enum Associativity;
 struct Token;
 

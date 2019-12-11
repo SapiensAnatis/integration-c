@@ -48,6 +48,12 @@ int main() {
         printf("Please enter an expression to perform integration of: ");
         fgets(expression, 65, stdin);
 
+        // Tokenize expression
+        // The maximum length of the tokenized expression will be if every character is a token
+        // So this is what will be assumed for malloc()
+        struct Token* tokenized_exp = malloc(strlen(expression) * sizeof(struct Token));
+        tokenize_exp()
+
         h = get_double_input("Please enter a value for the strip width: ");
         start = get_double_input("Please enter the lower limit of integration: ");
         end = get_double_input("Please enter the upper limit of integration: ");
