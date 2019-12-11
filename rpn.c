@@ -67,8 +67,8 @@ int exp_to_tokens(char *expression, struct Token* array_ptr) {
  */
 
 struct Stack {
-    char *start; // Pointer to start of memory allocated for array of values
-    char *top; // Pointer to last defined value in array
+    struct Token *start; // Pointer to start of memory allocated for array of values
+    struct Token *top; // Pointer to last defined value in array
     int size; // Current size of array
     int capacity; // Maximum size
 };
@@ -90,7 +90,7 @@ struct Stack {
 
 struct Stack init_stack(int capacity) {
     struct Stack s;
-    s.start = malloc(capacity * sizeof(char)); // allocate a block of memory for the array
+    s.start = malloc(capacity * sizeof(struct Token)); // allocate a block of memory for the array
     
     if (s.start == NULL) {
         printf("Unable to allocate memory for stack! Please check that you have enough RAM free.");
@@ -114,15 +114,18 @@ struct Stack init_stack(int capacity) {
  * Returns: none
  */
 
-void push_stack(struct Stack *stack, char value) {
+void push_stack(struct Stack *stack, struct Token value) {
     if (stack->size + 1 > stack->capacity) {
         printf("Stack full! Value not pushed.");
         return;
     }
 
     *(stack->top + 1) = value; // Write to the next address after the top of the stack
+                               
     stack->top++; // Increment the pointers to the top and the size value accordingly
     stack->size++;
+    // Due to the way pointer arithmatic is defined, +1 or ++ will actually
+    // increment by sizeof(struct Token)
 }
 
 /*
@@ -133,13 +136,13 @@ void push_stack(struct Stack *stack, char value) {
  * Returns: The value that was popped from the stack
  */
 
-char pop_stack(struct Stack *stack) {
+struct Token pop_stack(struct Stack *stack) {
     if (stack->size == 0) {
         printf("Stack is already empty! Value not popped.");
         return;
     }
     
-    char data;
+    struct Token data;
     data = *(stack->top);
     
     stack->top--;
@@ -157,7 +160,7 @@ char pop_stack(struct Stack *stack) {
  * Returns: The element at the top of the stack given
  */
 
-char get_stack_top(struct Stack *stack) {
+struct Token* get_stack_top(struct Stack *stack) {
     if (is_stack_empty(stack)) {
         printf("Attempted to access top of empty stack!");
         return NULL;
