@@ -13,6 +13,7 @@ struct Token;
 
 int exp_to_tokens(char*, struct Token*);
 void print_tokenized(struct Token*, int);
+void print_token(struct Token*);
 void compile_regex(char*, pcre2_code**);
 struct Stack* infix_to_RPN(char*);
 double evaluate_RPN(char*, double);
