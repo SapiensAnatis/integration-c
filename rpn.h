@@ -10,10 +10,6 @@ Token* exp_to_tokens(char*);
 void infix_to_RPN(char*);
 double evaluate_RPN(char*, double);
 
-int token_is_operator(char);
-int TokenIsNumber(char);
-int TokenIsFunction(char*);
-
 // Stacks
 
 struct Stack;
