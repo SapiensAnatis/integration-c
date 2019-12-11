@@ -39,7 +39,6 @@ struct Token {
 // Function: exp_to_tokens(expression, length)
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]
 // Parameters: expression, the string to be stripped
-//             array_ptr, the return value of malloc(strlen(expression) * sizeof(struct Token))
 // Outputs: Pointer to a stack of all tokens
 
 struct Stack* exp_to_tokens(char *expression) {
