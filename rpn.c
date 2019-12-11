@@ -37,7 +37,7 @@ struct Token {
  * ----------------------------------------------
  */
 
-// Function: exp_to_tokens(expression, length)
+// Function: exp_to_tokens(expression)
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]
 // Parameters: expression, the string to be tokenized
 // Outputs: A stack of all tokens
@@ -49,6 +49,7 @@ struct Stack *exp_to_tokens(char *expression) {
 
     struct Stack *output = init_stack(strlen(expression)); // Initialize output
 }
+
 
 // ------ Stack definitions ------
 // The stack is a datatype that can be thought of like a stack of plates or books.
