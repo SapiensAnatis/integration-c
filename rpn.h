@@ -3,8 +3,11 @@
 
 // Shunting yard/RPN
 
-char* ExpressionToTokens(char*);
-char* InfixToRPN(char*);
+enum TokenType;
+struct Token;
+
+Token* ExpressionToTokens(char*);
+Token* InfixToRPN(char*);
 double EvaluateRPN(char*, double);
 
 int TokenIsOperator(char);

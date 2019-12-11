@@ -1,6 +1,29 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 // ------ Shunting yard / RPN-related definitions ------
+
+/*
+ * ----------------------------------------------
+ * Type definitions
+ * ----------------------------------------------
+ */
+
+enum TokenType {
+    Operator, 
+    Number,
+    Variable,
+    Bracket,
+    Function
+};
+
+struct Token {
+    char text[16]; // if you want to use numbers with >15 digits then use someone else's program
+    enum TokenType type;
+    // Operator-exclusive properties, but as Stack is monotype they're in the general Token struct
+    int precedence;
+    int isRightAssociative; // 0 = left, 1 = right 
+};
 
 /*
  * ----------------------------------------------
@@ -13,13 +36,16 @@
 // Parameters: expression, the string to be stripped
 // Outputs: The stripped string (string is not modified in-place)
 
-char** ExpressionToTokens(char *expression) {
-    
-}
+struct Token* ExpressionToTokens(char *expression) {
+    int maxTokens = strlen(expression); // Maximum number of tokens (if expression solely
+                                              // consisted of 1-character tokens)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "stack.h"
+    struct Token* output = malloc(maxTokens * sizeof(struct Token));
+    if (output == NULL) { // malloc() returns null if it can't allocate, usually because of no RAM
+        printf("Unable to allocate memory for stack! Please check that you have enough RAM free.");
+        exit(EXIT_FAILURE); // Fatal error; program needs to quit
+    }
+}
 
 // ------ Stack definitions ------
 // The stack is a datatype that can be thought of like a stack of plates or books.
@@ -33,7 +59,7 @@ char** ExpressionToTokens(char *expression) {
 
 /*
  * ----------------------------------------------
- * Struct definitions
+ * Type definitions
  * ----------------------------------------------
  */
 
@@ -63,9 +89,9 @@ struct Stack InitStack(int capacity) {
     struct Stack s;
     s.start = malloc(capacity * sizeof(char)); // allocate a block of memory for the array
     
-    if (s.start == NULL) { // malloc() returns null if it can't allocate, usually because of no RAM
+    if (s.start == NULL) {
         printf("Unable to allocate memory for stack! Please check that you have enough RAM free.");
-        exit(EXIT_FAILURE); // Fatal error; program needs to quit
+        exit(EXIT_FAILURE);
     }
 
     // Once malloc has succeeded, can now assign the other properties
