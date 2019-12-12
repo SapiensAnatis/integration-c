@@ -6,7 +6,7 @@
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h> // perl-compatible regexes, more modern
 #include "stack.h"
-#include "rpn.h"
+#include "tokenize.h"
 
 // ------ Shunting yard / RPN-related definitions ------
 
