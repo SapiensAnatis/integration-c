@@ -235,7 +235,11 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
     // Will also be helpful to keep track of the last token for filling in implicit multiplication
     // i.e. "if last token was a number and this token is a function" for things like 4sin(45)
     struct Token prev_token;
-
+    /*
+     * Implicit multiplication has been temporarily disabled because it overflows the stack
+     * I would need some way of knowing how many implicit multipliers are in the expression to
+     * be able to account for this...but I don't know how to do that.
+     */
     // Initialize regex options
     int errornumber;
     int find_all = 0; // only want one match from regexes
@@ -267,9 +271,9 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         switch(expression[0]) {
             case '(':
                 // Implicit multiplication - if '4(' or ')(' is detected, substitute a * inbetween
-                if (prev_token.type == Number || prev_token.type == Bracket_Right) { 
+                /* if (prev_token.type == Number || prev_token.type == Bracket_Right) { 
                     push_stack(output, multiply); 
-                }
+                } */
 
                 push_stack(output, bracket_l);
                 prev_token = bracket_l;
@@ -380,7 +384,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         if (rc2 > 0) {
             if (prev_token.type == Number || prev_token.type == Bracket_Right) {
                 // Implicit multiplication again, checking for e.g. '4sin' or ')sin'
-                push_stack(output, multiply);
+                // push_stack(output, multiply);
             }
             ovector = pcre2_get_ovector_pointer(match_data);
             PCRE2_SPTR substring_start = subject + ovector[0];
