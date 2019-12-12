@@ -31,8 +31,8 @@
 struct Stack *init_stack(int capacity) {
     struct Stack *s = malloc(sizeof(struct Stack));
     s->start = malloc(capacity * sizeof(struct Token)); // allocate a block of memory for the array
-    printf("Allocated %d bytes for new stack\n", 
-        capacity * sizeof(struct Token) + sizeof(struct Stack));
+    // printf("Allocated %d bytes for new stack\n", 
+    //     capacity * sizeof(struct Token) + sizeof(struct Stack));
     
     if (s->start == NULL) {
         printf("Unable to allocate memory for stack! Please check that you have enough RAM free.");
@@ -112,7 +112,7 @@ struct Token pop_stack(struct Stack *stack) {
 
 struct Token* get_stack_top(struct Stack *stack) {
     if (is_stack_empty(stack)) {
-        printf("[Stack] Attempted to access top of empty stack!\n");
+        // printf("[Stack] Attempted to access top of empty stack! A null pointer was returned.\n");
         return NULL;
     }
 

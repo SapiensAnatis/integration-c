@@ -19,22 +19,22 @@
 
 
 int main() {
-    char expression[] = "2^(4+3)+4*3";
+    char expression[] = "(x+1)(x+2)";
     int num_tokens;
     int max_tokens;
 
     max_tokens = (int)(ceil(strlen(expression) * 1.333333333));
 
     struct Token *tokenized = malloc(max_tokens * sizeof(struct Token));
-    printf("Allocated %d bytes for tokenized_exp array\n", max_tokens * sizeof(struct Token));
+    // printf("Allocated %d bytes for tokenized_exp array\n", max_tokens * sizeof(struct Token));
     num_tokens = exp_to_tokens(expression, tokenized);
 
-    printf("Input: %s\nOutput:", expression);
+    // printf("Input: %s\nOutput:", expression);
     print_tokenized(tokenized, num_tokens);
-    printf("Only needed %d bytes. Excess memory: %d bytes\n", 
-        sizeof(struct Token) * num_tokens, 
-        (max_tokens - num_tokens) * sizeof(struct Token)
-    );
+    // printf("Only needed %d bytes. Excess memory: %d bytes\n", 
+    //  sizeof(struct Token) * num_tokens, 
+    //  (max_tokens - num_tokens) * sizeof(struct Token)
+    // );
 
     struct Token *rpn = malloc(num_tokens * sizeof(struct Token));
     int rc = shunting_yard(tokenized, num_tokens, rpn);
@@ -49,8 +49,8 @@ int main() {
      * 
      * For the input expression "(x+1)(x+2)", the above code will print
      * 
-     * Input: (x+1)(x+2)
-     * Output:['(', 'x', '+', '1.00', ')', '*', '(', 'x', '+', '2.00', ')']
+     * ['(', 'x', '+', '1.00', ')', '*', '(', 'x', '+', '2.00', ')']
+     * Shunting yard returned 7. Shunted: ['x', '1.00', '+', 'x', '2.00', '+', '*']
      */
 }
 

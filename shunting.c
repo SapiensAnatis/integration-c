@@ -24,10 +24,10 @@ int shunting_yard(struct Token *input_tokenized,
                             int token_count, 
                             struct Token *output_tokenized) {
     // Initialize operator stack
-    printf("Allocating operator stack...");
+    // printf("Allocating operator stack...");
     struct Stack *op_stack = init_stack(token_count);
     // Initialize output stack
-    printf("Allocating output stack.....");
+    // printf("Allocating output stack.....");
     struct Stack *ret_stack = init_stack(token_count);
     // counter for output stack length - hard to know once written to memory
     int output_token_count;
@@ -40,15 +40,19 @@ int shunting_yard(struct Token *input_tokenized,
         struct Token *token = (input_tokenized + i);
 
         // What type of token is it?
-        if (token->type == Number) {
+        if (token->type == Number || token->type == Variable) {
             push_stack(ret_stack, *token);
         } else if (token->type == Function) {
             push_stack(op_stack, *token);
         } else if (token->type == Operator) {
             // Check we aren't looking at an empty stack (this means an operator was put first,
             // for instance *4*4 isn't a valid expression)
-            printf("[Shunting] Operator found. Operator stack top: %p\n", op_stack_top);
-            if (is_stack_empty(op_stack) || op_stack_top == NULL) { push_stack(op_stack, *token); continue; }
+            // printf("[Shunting] Operator found. Operator stack top: %p\n", op_stack_top);
+            if (is_stack_empty(op_stack) || op_stack_top == NULL) { 
+                // printf("Operator stack was empty. Pushing and continuing loop.\n");
+                push_stack(op_stack, *token); 
+                continue; 
+            }
             // I'm really sorry about this boolean check
             while (
                 (
@@ -66,8 +70,12 @@ int shunting_yard(struct Token *input_tokenized,
                     ) 
                 ) && op_stack_top->type != Bracket_Left
             ) { 
+                // printf("Popped operator from stack onto output stack.\n");
                 push_stack(ret_stack, pop_stack(op_stack)); 
                 op_stack_top = get_stack_top(op_stack); // otherwise an infinite loop results
+                if (op_stack_top == NULL) { break; } // if stack just emptied, we'll get a null ptr
+                // (and if we attempt to do stuff with that on the next run of the loop, bad stuff
+                // is going to happen)
             }
 
             push_stack(op_stack, *token);
@@ -77,6 +85,7 @@ int shunting_yard(struct Token *input_tokenized,
             while (op_stack_top->type != Bracket_Left) {
                 push_stack(ret_stack, pop_stack(op_stack));
                 op_stack_top = get_stack_top(op_stack);
+                if (op_stack_top == NULL) { break; }
             }
             // Once that loop is done, the operator stack will either be empty or have a left 
             // parentheses on top. If it's empty, that means there are mismatched parentheses.
@@ -84,20 +93,26 @@ int shunting_yard(struct Token *input_tokenized,
                 return -1; // error return code (rc)
             } else if (op_stack_top->type == Bracket_Left) {
                 pop_stack(op_stack); // Discard top
-                op_stack_top = get_stack_top(op_stack);
+                //op_stack_top = get_stack_top(op_stack);
             }
         }
 
         // Update top stack pointer
-        printf("[Shunting] (i = %d) Finished evaluating token of type %d\n", i, token->type);
-        printf("[Shunting] Getting new stack top: Stack start (%p), Stack top (%p), ",
-                op_stack->start, op_stack_top);
+        // printf("[Shunting] (i = %d) Finished evaluating token of type %d\n", i, token->type);
+        // printf("[Shunting] Getting new stack top: Stack start (%p), Stack top (%p), ",
+        //      op_stack->start, op_stack_top);
         op_stack_top = get_stack_top(op_stack);
-        printf("New stack top (%p)\n", op_stack_top);
+        
+        // if (op_stack_top == NULL) { break; } It's possible for the operator stack to be emptied
+        // during the running of the program, I think. So it's mainly important to check for NULL
+        // during loops when the stack top will *immediately* be accessed again, whereas here the
+        // next iteration may add to it, so a break is unnecessary.
+
+        // printf("New stack top (%p)\n", op_stack_top);
     }
 
     // Pop remainder of operator stack onto output queue
-    printf("Popping contents of operator stack into output stack...\n");
+    // printf("Popping contents of operator stack into output stack...\n");
     while (!is_stack_empty(op_stack)) {
         if (
             op_stack_top->type == Bracket_Left || 
@@ -118,4 +133,12 @@ int shunting_yard(struct Token *input_tokenized,
     }
 
     return j; // rc for success: number of tokens in the final rpn expression
+}
+
+// Safety net: sometimes once we pop the last element off the operator stack we will try and get
+// the top of an empty stack, which generates a null pointer.
+void refresh_op_stack_top(struct Token *stack_top_ptr, struct Stack *stack) {
+    if (!is_stack_empty(stack)) {
+        stack_top_ptr = get_stack_top(stack);
+    }
 }

@@ -17,6 +17,7 @@ struct Stack *init_stack(int);
 void push_stack(struct Stack*, struct Token);
 struct Token pop_stack(struct Stack*);
 struct Token *get_stack_top(struct Stack*);
+struct Token* get_stack_start(struct Stack*);
 int is_stack_empty(struct Stack*);
 int get_stack_size(struct Stack*);
 void delete_stack(struct Stack*);
