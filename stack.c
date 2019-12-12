@@ -58,7 +58,7 @@ struct Stack *init_stack(int capacity) {
 
 void push_stack(struct Stack *stack, struct Token value) {
     if (stack->size + 1 > stack->capacity) {
-        printf("Stack full! Value not pushed.");
+        // printf("Stack full! Value not pushed.");
         return;
     }
 
@@ -81,7 +81,7 @@ void push_stack(struct Stack *stack, struct Token value) {
 struct Token pop_stack(struct Stack *stack) {
     if (stack->size == 0) {
         struct Token t;
-        printf("Stack is already empty! Value not popped. Returning null Token.");
+        // printf("Stack is already empty! Value not popped. Returning null Token.");
         return t;
     }
     else if (stack->top == NULL) {
@@ -112,7 +112,7 @@ struct Token pop_stack(struct Stack *stack) {
 
 struct Token* get_stack_top(struct Stack *stack) {
     if (is_stack_empty(stack)) {
-        printf("Attempted to access top of empty stack!");
+        printf("[Stack] Attempted to access top of empty stack!\n");
         return NULL;
     }
 
@@ -122,6 +122,10 @@ struct Token* get_stack_top(struct Stack *stack) {
     // them so that I never have to directly access the properties of the stack, since some of them
     // are memory addresses which could cause things to go wrong. It's much easier if direct access
     // is only performed inside a few controlled methods.
+}
+
+struct Token* get_stack_start(struct Stack *stack) {
+    return stack->start;
 }
 
 /*

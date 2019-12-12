@@ -7,6 +7,7 @@
 #include <pcre2.h> // perl-compatible regexes, more modern
 #include "stack.h"
 #include "tokenize.h"
+#include "shunting.h"
 
 // ------ Shunting yard / RPN-related definitions ------
 
@@ -18,7 +19,7 @@
 
 
 int main() {
-    char expression[] = "(x+1)sin(x)";
+    char expression[] = "2^(4+3)+4*3";
     int num_tokens;
     int max_tokens;
 
@@ -30,8 +31,18 @@ int main() {
 
     printf("Input: %s\nOutput:", expression);
     print_tokenized(tokenized, num_tokens);
+    printf("Only needed %d bytes. Excess memory: %d bytes\n", 
+        sizeof(struct Token) * num_tokens, 
+        (max_tokens - num_tokens) * sizeof(struct Token)
+    );
+
+    struct Token *rpn = malloc(num_tokens * sizeof(struct Token));
+    int rc = shunting_yard(tokenized, num_tokens, rpn);
+    printf("Shunting yard returned %d. Shunted: ", rc);
+    print_tokenized(rpn, rc);
 
     free(tokenized);
+    free(rpn);
 
     /*
      * Example input/output:
@@ -152,7 +163,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
     const struct Token power = {
         .type = Operator,
         .operator_type = Op_Power,
-        .precedence = 3,
+        .precedence = 4,
         .associativity = Assoc_Right
     };
     const struct Token multiply = {
@@ -379,7 +390,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
                 substring[i] = tolower(substring[i]);
             }
             
-            printf("Found match for function regex of length %d\n", substring_length);
+            // printf("Found match for function regex of length %d\n", substring_length);
 
             if (strcmp(substring, "sin") == 0) { ft = Func_Sin; }
             else if (strcmp(substring, "cos") == 0) { ft = Func_Cos; }
