@@ -47,10 +47,11 @@ enum Associativity {
 };
 
 
-// The reason why there are both Function and Operator fields, as well as Function_Type is so that
-// when it comes time to evaluate the RPN expression, it is possible to both examine "is the token
-// a function" and "what function is the token". If we only stored function types, to check the
-// former would require `if token.Function_Type != null` which is less readable
+// The reason why there are both Function and Operator fields, as well as
+// Function_Type/Operator_Type is so that when it comes time to evaluate the tokens and do stuff, 
+// with them, it is possible to both examine "is the token a function" and 
+// "what function is the token". If we only stored function types, to check the former would  
+// require `if token.Function_Type != null` which is less readable
 
 struct Token {
     enum Token_Type type;
@@ -73,7 +74,7 @@ struct Token {
 
 
 int main() {
-    char expression[] = "(22.4+8) * 3";
+    char expression[] = "(33)sin(45)";
     int num_tokens;
 
     struct Token *tokenized = malloc(6 * sizeof(struct Token));
@@ -103,20 +104,38 @@ void print_tokenized(struct Token *token_arr_ptr, int token_count) {
 
 void print_token(struct Token *token) {
     if (token->type == Operator) {
-            switch (token->operator_type) {
-                case Op_Power:
-                    printf("'^'"); break;
-                case Op_Multiply:
-                    printf("'*'"); break;
-                case Op_Divide:
-                    printf("'/'"); break;
-                case Op_Add:
-                    printf("'+'"); break;
-                case Op_Subtract:
-                    printf("'-'"); break;
-                default:
-                    break;
-            }
+        switch (token->operator_type) {
+            case Op_Power:
+                printf("'^'"); break;
+            case Op_Multiply:
+                printf("'*'"); break;
+            case Op_Divide:
+                printf("'/'"); break;
+            case Op_Add:
+                printf("'+'"); break;
+            case Op_Subtract:
+                printf("'-'"); break;
+            default:
+                break;
+        }
+    }
+    else if (token->type == Function) {
+        switch (token->function_type) {
+            case Func_Sin:
+                printf("'sin'"); break;
+            case Func_Cos:
+                printf("'cos'"); break;
+            case Func_Tan:
+                printf("'tan'"); break;
+            case Func_Ln:
+                printf("'tan'"); break;
+            case Func_Exp:
+                printf("'exp'"); break;
+            case Func_Log:
+                printf("'log'"); break;
+            default:
+                break;
+        }
     }
     else if (token->type == Bracket_Left) {
         printf("'('");
@@ -247,6 +266,11 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         //printf("Operating on substring %s\n", expression);
         switch(expression[0]) {
             case '(':
+                // Implicit multiplication - if '4(' or ')(' is detected, substitute a * inbetween
+                if (prev_token.type == Number || prev_token.type == Bracket_Right) { 
+                    push_stack(output, multiply); 
+                }
+
                 push_stack(output, bracket_l);
                 prev_token = bracket_l;
                 expression++; // Move forward 1 character
@@ -307,6 +331,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         
         // If number regex matched
         if (rc1 > 0) {
+            printf("Match for number regex\n");
             ovector = pcre2_get_ovector_pointer(match_data);
             //printf("Number match succeesed at offset %d\n", (int)ovector[0]);
 
@@ -315,6 +340,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             // the full match
             PCRE2_SPTR substring_start = subject + ovector[0];
             size_t substring_length = ovector[1] - ovector[0];
+            
             // End disclaimer, this next bit I understand 
             // Make a space to copy the string into               
             char *substring = malloc(substring_length * sizeof(char));
@@ -337,6 +363,8 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
     
             continue;
         }
+
+        match_data = pcre2_match_data_create_from_pattern(func_regex_comp, NULL);
         
         rc2 = pcre2_match(
             func_regex_comp,
@@ -350,6 +378,11 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
 
         // If function regex matched
         if (rc2 > 0) {
+            if (prev_token.type == Number || prev_token.type == Bracket_Right) {
+                // Implicit multiplication again, checking for e.g. '4sin' or ')sin'
+                push_stack(output, multiply);
+            }
+            ovector = pcre2_get_ovector_pointer(match_data);
             PCRE2_SPTR substring_start = subject + ovector[0];
             size_t substring_length = ovector[1] - ovector[0];
 
@@ -367,6 +400,8 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
                 substring[i] = tolower(substring[i]);
             }
             
+            printf("Found match for function regex of length %d\n", substring_length);
+
             if (strcmp(substring, "sin") == 0) { ft = Func_Sin; }
             else if (strcmp(substring, "cos") == 0) { ft = Func_Cos; }
             else if (strcmp(substring, "tan") == 0) { ft = Func_Tan; }
@@ -389,7 +424,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         // Now, the only way you can be down here is if something went quite wrong
 
         if (rc1 == PCRE2_ERROR_NOMATCH && rc2 == PCRE2_ERROR_NOMATCH) { 
-            printf("Unrecognized token found in input expression: '%c'", expression[0]);
+            printf("Unrecognized token found in input expression: '%c'\n", expression[0]);
             expression++;
             continue;
         }    
@@ -401,11 +436,14 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         pcre2_match_data_free(match_data);
     }
 
+    printf("Iteration complete. Popping stack of size %d\n", get_stack_size(output));
     // Take the output stack and pop it into an array at the address `tokenized`
     // Note that because this array is generated by taking the elements popped off the top of the
     // stack first, it's actually backwards compared to the input
     int i = 0;
+    printf("i = ");
     while (!is_stack_empty(output)) {
+        printf("%d...", get_stack_size(output));
         // Write to the pointer given to the function (expected to be from malloc)
         struct Token value = pop_stack(output);
         memcpy(tokenized + i, &value, sizeof(value));
@@ -541,12 +579,19 @@ struct Token pop_stack(struct Stack *stack) {
         printf("Stack is already empty! Value not popped. Returning null Token.");
         return t;
     }
+    else if (stack->top == NULL) {
+        printf("Null stack stop pointer. Current size: %d\n", stack->size);
+    }
     
+    printf("Stack start %p | Stack top %p | ", stack->start, stack->top);
+
     struct Token data;
     data = *(stack->top);
     
-    stack->top--;
-    stack->size--;
+    stack->top = stack->top - 1;
+    stack->size = stack->size - 1;
+
+    printf("New top %p\n", stack->top);
     
     //printf("Popped: %c\n", data);
     return data;
@@ -587,6 +632,18 @@ int is_stack_empty(struct Stack *stack) {
 }
 
 /*
+ * Function get_stack_size(stack)
+ * 
+ * Description: Gives the stack size
+ * Parameters: stack, the stack to examine
+ * Returns: An integer equal to the number of elements in the stack
+ */
+
+int get_stack_size(struct Stack *stack) {
+    return (stack->size);
+}
+
+/*
  * Function delete_stack(stack)
  * 
  * Description: Frees up the memory allocated by a stack
@@ -595,6 +652,7 @@ int is_stack_empty(struct Stack *stack) {
  */
 
 void delete_stack(struct Stack *stack) {
+    printf("Stack destroyed\n");
     free(stack->start);
     free(stack);
 }
