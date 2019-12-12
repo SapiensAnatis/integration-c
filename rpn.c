@@ -34,6 +34,13 @@ int main() {
     free(tokenized);
 }
 
+// Function: print_tokenized(token_arr_ptr, token_count)
+// Description: Prints an array of tokens (e.g. output of exp_to_tokens())
+// Parameters: token_arr_ptr, the pointer to the start of the token array as given by malloc()
+//             token_count, the number of tokens in the array
+// Outputs: None
+
+
 void print_tokenized(struct Token *token_arr_ptr, int token_count) {
     printf("["); // opening/closing brackets
     struct Token token;
@@ -49,6 +56,11 @@ void print_tokenized(struct Token *token_arr_ptr, int token_count) {
     }
     printf("]\n");
 }
+
+// Function: print_token(token)
+// Description: Prints a single token as a string. Used as an abstraction in print_tokenized()
+// Parameters: token, the token to print
+// Outputs: None
 
 void print_token(struct Token *token) {
     if (token->type == Operator) {
