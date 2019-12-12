@@ -229,16 +229,21 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         .type = Function,
         .function_type = Func_Exp
     };
+    const struct Token x_var = {
+        .type = Variable
+    };
 
     #pragma endregion
 
     // Will also be helpful to keep track of the last token for filling in implicit multiplication
     // i.e. "if last token was a number and this token is a function" for things like 4sin(45)
     struct Token prev_token;
-    /*
-     * Implicit multiplication has been temporarily disabled because it overflows the stack
+    /* 
+     * ============================================================================================
+     * Implicit multiplication has been temporarily disabled because it overflows the stack!
      * I would need some way of knowing how many implicit multipliers are in the expression to
      * be able to account for this...but I don't know how to do that.
+     * ============================================================================================
      */
     // Initialize regex options
     int errornumber;
@@ -307,6 +312,11 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             case '-':
                 push_stack(output, subtract);
                 prev_token = subtract;
+                expression++;
+                continue;
+            case 'x':
+                push_stack(output, x_var);
+                prev_token = x_var;
                 expression++;
                 continue;
             case ' ': // no action required, move on
