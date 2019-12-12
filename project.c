@@ -49,9 +49,23 @@ int main() {
         fgets(expression, 65, stdin);
 
         // Tokenize expression
-        // The maximum length of the tokenized expression will be if every character is a token
-        // So this is what will be assumed for malloc()
-        struct Token* tokenized_exp = malloc(strlen(expression) * sizeof(struct Token));
+        // In considering the maximum tokens, it's tempting to say "the maximum is if each
+        // character is a token, e.g. '2*3*4*5'", but this doesn't account for implicit 
+        // multiplication - the maximum tokens is created by an expression like '()()()' which has
+        // 6 characters but 8 tokens (even if that's a garbage expression, it's technically valid, 
+        // it just produces an empty stack once shunting yard is done). So the maximum token:char 
+        // ratio is not 1, but rather 8/6 = 4/3 ~= 1.333333
+
+        // Strictly speaking, it *would* be more efficient to perform a regex match to detect
+        // implicit multiplication and all tokens and allocate memory accordingly, but this current
+        // solution uses less than 1MB for most simple expressions, and the expression is only
+        // tokenized once, so I'm sure I won't be crashing any systems by letting laziness take
+        // over in this case.
+
+        int max_exp_tokens = (int)(ceil(strlen(expression) * 1.333333333));
+
+        
+        struct Token* tokenized_exp = malloc(max_exp_tokens * sizeof(struct Token));
         tokenize_exp();
 
         h = get_double_input("Please enter a value for the strip width: ");
