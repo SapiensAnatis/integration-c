@@ -157,7 +157,6 @@ int get_stack_size(struct Stack *stack) {
  */
 
 void delete_stack(struct Stack *stack) {
-    printf("Stack destroyed\n");
     free(stack->start);
     free(stack);
 }

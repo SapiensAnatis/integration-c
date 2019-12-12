@@ -303,7 +303,6 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         
         // If number regex matched
         if (rc1 > 0) {
-            printf("Match for number regex\n");
             ovector = pcre2_get_ovector_pointer(match_data);
             //printf("Number match succeesed at offset %d\n", (int)ovector[0]);
 
