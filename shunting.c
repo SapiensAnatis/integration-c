@@ -169,8 +169,8 @@ double evaluate_rpn(struct Token *input_rpn, int num_tokens, double x) {
         token = (input_rpn + i);
         if (token == NULL) { break; }
         
-        printf("Token: ");
-        print_token(token);
+        //printf("Token: ");
+        //print_token(token);
         
 
         if (token->type == Operator) {
@@ -178,13 +178,10 @@ double evaluate_rpn(struct Token *input_rpn, int num_tokens, double x) {
             // Their value depends on if they're a number or a variable
             operand1 = pop_stack(eval_stack);
             operand2 = pop_stack(eval_stack);
-            printf(" | Operands: ");
-            print_token(&operand1);
-            print_token(&operand2);
+            
 
             operand1_value = get_token_value(&operand1, x);
             operand2_value = get_token_value(&operand2, x);
-            printf(" | Operand values: %f %f", operand1_value, operand2_value);
 
             // Now perform the calculation. Sorry again about this Great Wall of China replica
             switch (token->operator_type) {
@@ -208,7 +205,7 @@ double evaluate_rpn(struct Token *input_rpn, int num_tokens, double x) {
                     exit(EXIT_FAILURE);
             }
 
-            printf(" | Operation result: %f", operation_result);
+            //printf(" | Operation result: %f", operation_result);
 
             // Once we have the result, push it back to the stack
             struct Token result = {
@@ -257,9 +254,11 @@ double evaluate_rpn(struct Token *input_rpn, int num_tokens, double x) {
             push_stack(eval_stack, *token);
         }
 
-        printf("\n");
     }
-
+    // Clean up
     // In theory once that loop is done, the result should be the lone value on the stack
-    return pop_stack(eval_stack).value;
+    double result = pop_stack(eval_stack).value;
+    delete_stack(eval_stack);
+
+    return result;
 }

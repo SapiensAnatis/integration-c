@@ -18,7 +18,7 @@
  */
 
 
-int main() {
+/* int main() {
     char expression[] = "4(sin(x))^2";
     double x = 4;
     int num_tokens;
@@ -60,7 +60,7 @@ int main() {
      * ['(', 'x', '+', '1.00', ')', '*', '(', 'x', '+', '2.00', ')']
      * Shunting yard returned 7. Shunted: ['x', '1.00', '+', 'x', '2.00', '+', '*']
      */
-}
+//}
 
 
 // Function: exp_to_tokens(expression)
