@@ -27,7 +27,7 @@ enum Function_Type {
     Func_Tan,
     Func_Ln,
     Func_Exp,
-    Func_Log
+    Func_Log // log10
 };
 
 
@@ -55,5 +55,11 @@ struct Token {
     // Function-exclusive properties
     enum Function_Type function_type;
 };
+
+// Functions
+
+double get_token_value(struct Token *, double);
+void print_token(struct Token *);
+void print_tokenized(struct Token *, int);
 
 #endif

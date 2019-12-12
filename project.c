@@ -144,7 +144,7 @@ double get_double_input(const char* prompt) {
         fgets(buffer, 256, stdin); // Assign stdin stream data to buffer; 256 not 255 because \n is
                                    // counted when the user presses Enter
         output = strtod(buffer, &n_end);
-
+        
         if (n_end == buffer) { // If no numerical input was found
             printf("Please enter a valid number.\n");
             continue;
