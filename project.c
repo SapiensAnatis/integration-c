@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "rpn.h"
+#include "tokenize.h"
 
 /*
  * ----------------------------------------------

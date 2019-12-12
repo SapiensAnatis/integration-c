@@ -18,7 +18,7 @@
 
 
 int main() {
-    char expression[] = "(x+1)(x+2)";
+    char expression[] = "(x+1)sin(x)";
     int num_tokens;
     int max_tokens;
 
@@ -32,6 +32,15 @@ int main() {
     print_tokenized(tokenized, num_tokens);
 
     free(tokenized);
+
+    /*
+     * Example input/output:
+     * 
+     * For the input expression "(x+1)(x+2)", the above code will print
+     * 
+     * Input: (x+1)(x+2)
+     * Output:['(', 'x', '+', '1.00', ')', '*', '(', 'x', '+', '2.00', ')']
+     */
 }
 
 // Function: print_tokenized(token_arr_ptr, token_count)
