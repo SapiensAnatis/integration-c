@@ -146,8 +146,8 @@ A few points to note:\n\n\
         int exp_tokens = exp_to_tokens(expression, tokenized_exp); // assigns the tokenized exp to 
                                                                    // that pointer (2nd argument)
 
-        printf("\nTokenized: ");
-        print_tokenized(tokenized_exp, exp_tokens);
+        // printf("\nTokenized: ");
+        // print_tokenized(tokenized_exp, exp_tokens);
 
         if (exp_tokens == 0) {
             printf("\nIntegration result: 0\n\n"); 
@@ -158,8 +158,8 @@ A few points to note:\n\n\
         int rc = shunting_yard(tokenized_exp, exp_tokens, rpn_exp); // rc: number of shunted tokens
         
         
-        printf("RPN: ");
-        print_tokenized(rpn_exp, rc);
+        // printf("RPN: ");
+        // print_tokenized(rpn_exp, rc);
 
         start = get_double_input("Please enter the lower limit of integration: ");
         end = get_double_input("Please enter the upper limit of integration: ");
@@ -398,5 +398,22 @@ int get_int_input(const char* prompt) {
  *     	2. Compute integration estimate by trapezium rule
  *     	3. Show help message
  *     	4. Exit
+ * 
+ * Please select from the following options:
+ *     	1. Compute integration estimate by Simpson's rule
+ *     	2. Compute integration estimate by trapezium rule
+ *     	3. Show help message
+ *     	4. Exit
+ * 1
+ * 
+ * Please enter an expression to perform integration of: 4ln(x) + exp(2x)
+ * 
+ * Please enter the lower limit of integration: 4
+ * Please enter the upper limit of integration: 10
+ * Please enter the number of strips to use: 100
+ * 
+ * Integration result: 261988040.308490 [analytical result 242581153.149, in terms of % error still
+ *                                       not bad, absolute error is a bit high though]
+ * 
  * 
  */
