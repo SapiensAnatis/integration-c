@@ -187,23 +187,29 @@ double evaluate_rpn(struct Token *input_rpn, int num_tokens, double x) {
             switch (token->operator_type) {
                 case Op_Power:
                     operation_result = pow(operand2_value, operand1_value);
+                    // printf("%f ^ %f = %f", operand2_value, operand1_value, operation_result);
                     break;
                 case Op_Multiply:
-                    operation_result = operand1_value * operand2_value;
+                    operation_result = operand2_value * operand1_value;
+                    // printf("%f * %f = %f", operand2_value, operand1_value, operation_result);
                     break;
                 case Op_Divide:
-                    operation_result = operand1_value / operand2_value;
+                    operation_result = operand2_value / operand1_value;
+                    // printf("%f / %f = %f", operand2_value, operand1_value, operation_result);
                     break;
                 case Op_Add:
-                    operation_result = operand1_value + operand2_value;
+                    operation_result = operand2_value + operand1_value;
+                    // printf("%f + %f = %f", operand2_value, operand1_value, operation_result);
                     break;
                 case Op_Subtract:
-                    operation_result = operand1_value - operand2_value;
+                    operation_result = operand2_value - operand1_value;
+                    // printf("%f - %f = %f", operand2_value, operand1_value, operation_result);
                     break;
                 default:
                     printf("invalid operator???");
                     exit(EXIT_FAILURE);
             }
+            // printf("\n");
 
             //printf(" | Operation result: %f", operation_result);
 

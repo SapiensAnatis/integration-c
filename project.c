@@ -6,18 +6,7 @@
 #include "shunting.h"
 #include "token.h"
 #include "stack.h"
-
-/*
- * ----------------------------------------------
- * Function/type prototypes
- * ----------------------------------------------
- */
-
-// User interface
-int menu();
-double get_double_input(const char*);
-int get_int_input(const char*);
-int main();
+#include "project.h"
 
 /*
  * ----------------------------------------------
@@ -35,23 +24,55 @@ int main();
 
 int main() {
     while (1) {
+        
         int choice;
         choice = menu();
+        clear_stdin();
 
-        if (choice == 2) {
+        if (choice == 4) {
             return EXIT_SUCCESS; // Quit program with appropriate exit code
+        } else if (choice == 3) {
+            // Show help
+            printf(
+"\nThis is an integral calculator using several different methods for numerically\n\
+computing (i.e. computing without algebra) integral expressions. Mostly any\n\
+expression is supported, aside from some more niche functions (hyperbolic trigs,\n\
+binomial choose, to name a few) and similarly niche operators (e.g. factorial)\n\n\
+A few points to note:\n\n\
+\t* At this time, the only variable of integration supported is x. Use this,\n\
+\t  and only this, when you want to use a variable.\n\
+\t* Please always enclose function arguments in brackets: e.g. ln(x) instead of lnx\n\
+\t* The implemented functions are:\n\
+\t\t- 'sin',\n\
+\t\t- 'cos',\n\
+\t\t- 'tan',\n\
+\t\t- 'ln',\n\
+\t\t- 'exp' (base e),\n\
+\t\t- 'log' (which is base 10).\n\
+\t* The above functions can be used in an expression by typing their name (as\n\
+\t  enclosed in quotes above).\n\
+\t* The implemented operators are:\n\
+\t\t- Addition (+)\n\
+\t\t- Subtraction (-)\n\
+\t\t- Multiplication (*)\n\
+\t\t- Division (/)\n\
+\t\t- Exponents (^)\n\
+\t* Implicit multiplication is supported (e.g. 4sin(x) will be interpreted as \n\
+\t  4*sin(x))\n\n"
+            );
+            continue; // show menu again
         }
 
-        // Else, continue on with the program
-        // Next step: get input (expression, h, range)
+        // At this point, options 3/4 have broken the flow of the program, so we're only here
+        // if we want to do some integration. We can therefore prepare for this, and only decide
+        // which method to use later.1
         char expression[64]; // The expression to evaluate
         int strips; // The width of the strips used in the approximation
         double start; // The lower value of the range
         double end; // The upper value of the range
 
 
-        int c;
-        while ((c = getchar()) != '\n' && c != EOF) { }
+        
 
         // Getting expression doesn't involve a function call, since it's just 2 lines and only one
         // string is ever taken from user input
@@ -85,11 +106,24 @@ int main() {
         struct Token* rpn_exp = malloc(exp_tokens * sizeof(struct Token)); // same deal
         int rc = shunting_yard(tokenized_exp, exp_tokens, rpn_exp); // rc: number of shunted tokens
         
+        // printf("\nTokenized: ");
+        // print_tokenized(tokenized_exp, exp_tokens);
+        // printf("RPN: ");
+        // print_tokenized(rpn_exp, rc);
 
-        start = get_double_input("Please enter the lower limit of integration: ");
+        start = get_double_input("\nPlease enter the lower limit of integration: ");
         end = get_double_input("Please enter the upper limit of integration: ");
+
+        if (fabs(start-end) < 0.0000001) { 
+            // Can't directly compare floats as they're weird
+            // This is the next best thing to a == b
+            printf("\nIntegration result: 0\n\n"); // Don't even bother 
+            continue;
+        }
+
         strips = get_int_input("Please enter the number of strips to use: ");        
 
+        // Swap because integration method goes from lowest to highest
         if (start > end) {
             double tmp;
             tmp = start;
@@ -97,44 +131,59 @@ int main() {
             end = tmp;
         }
 
-        double dx = abs(start - end);
-        printf("|%f - %f| = %f\n", start, end, dx);
+        double dx = fabs(start - end);
+
+        // printf("|%f - %f| = %f\n", start, end, dx);
 
         double h = dx / strips;
         double sum = 0;
         int four_or_two = 1;
         int n = 1;
         double y;
-        printf("h = %f\n", h);
+        // printf("h = %f\n", h);
 
         double current_x = start + h;
+        // --- Simpson's rule ---
+        if (choice == 1) {
+            // First add f(x_0) and f(x_n)
+            sum += evaluate_rpn(rpn_exp, rc, start);
+            sum += evaluate_rpn(rpn_exp, rc, end);
 
-        // First add f(x_0) and f(x_n)
-        sum += evaluate_rpn(rpn_exp, rc, start);
-        sum += evaluate_rpn(rpn_exp, rc, end);
-
-        while (current_x <= end) {
-            if (n % 2 == 0) {
-                // if n is even
-                four_or_two = 2;
-            } else {
-                // if n is odd
-                four_or_two = 4;
+            while (current_x <= end) {
+                if (n % 2 == 0) {
+                    // if n is even
+                    four_or_two = 2;
+                } else {
+                    // if n is odd
+                    four_or_two = 4;
+                }
+                y = evaluate_rpn(rpn_exp, rc, current_x);
+                // printf("x = %f, y = %f\n", current_x, y);
+                sum += (four_or_two * y);
+                
+                n++;
+                current_x += h;
             }
-            y = evaluate_rpn(rpn_exp, rc, current_x);
-            printf("x = %f, y = %f\n", current_x, y);
-            sum += (four_or_two * y);
-            
-            n++;
-            current_x += h;
-        }
 
-        // Finish by multiplying by dx/3
-        sum *= h / 3;
+            // Finish by multiplying by dx/3
+            sum *= h / 3;
+        } else if (choice == 2) {
+            sum += evaluate_rpn(rpn_exp, rc, start);
+            sum += evaluate_rpn(rpn_exp, rc, end);
+
+            while (current_x <= end) {
+                y = evaluate_rpn(rpn_exp, rc, current_x);
+                sum += 2*y;
+                current_x += h;
+            }
+
+            sum *= h / 2;
+        }
 
         printf("\nIntegration result: %f\n\n", sum);
 
         free(tokenized_exp);
+        free(rpn_exp);
     }
 }
 
@@ -150,8 +199,10 @@ int main() {
 
 int menu() {
     printf("Please select from the following options:\n\
-    \t1. Compute trapezium rule estimate\n\
-    \t2. Exit\n");
+    \t1. Compute integration estimate by Simpson's rule\n\
+    \t2. Compute integration estimate by trapezium rule\n\
+    \t3. Show help message\n\
+    \t4. Exit\n");
 
     char input;
 
@@ -161,7 +212,7 @@ int menu() {
         input -= 48; // 48 is the character 0 in ASCII; by subtracting this offset, input is an
                      // integer corresponding to the chosen option's number
 
-        if (input >= 1 && input <= 2) { // valid range of choices
+        if (input >= 1 && input <= 4) { // valid range of choices
             return input;
         } else {
             printf("You have selected an invalid option. Please try again.\n");
@@ -182,14 +233,13 @@ int menu() {
  */
 
 double get_double_input(const char* prompt) {
-    printf(prompt);
-    
     char buffer[255]; // Holder for string input
     char *n_end; // Pointer given to strtod which signifies the end of valid numerical input
     double output;
 
     // Loop until satisfactory input is received, at which point function returns said input
     while (1) {
+        printf(prompt);
         fgets(buffer, 256, stdin); // Assign stdin stream data to buffer; 256 not 255 because \n is
                                    // counted when the user presses Enter
         output = strtod(buffer, &n_end);
@@ -215,23 +265,27 @@ double get_double_input(const char* prompt) {
  */
 
 int get_int_input(const char* prompt) {
-    printf(prompt);
-    
     char buffer[255]; // Holder for string input
     char *n_end; // Pointer given to strtod which signifies the end of valid numerical input
     int output;
 
     // Loop until satisfactory input is received, at which point function returns said input
     while (1) {
+        printf(prompt);
         fgets(buffer, 256, stdin); // Assign stdin stream data to buffer; 256 not 255 because \n is
                                    // counted when the user presses Enter
         output = (int)strtol(buffer, &n_end, 10); // base10
         
-        if (n_end == buffer) { // If no numerical input was found
+        if (n_end == buffer || output == 0) { // If no numerical input was found
             printf("Please enter a valid number.\n");
             continue;
         } else {
             return output;
         }
     }
+}
+
+void clear_stdin() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
 }
