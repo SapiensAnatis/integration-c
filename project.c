@@ -76,7 +76,7 @@ A few points to note:\n\n\
 
         // Getting expression doesn't involve a function call, since it's just 2 lines and only one
         // string is ever taken from user input
-        printf("Please enter an expression to perform integration of: ");
+        printf("\nPlease enter an expression to perform integration of: ");
         fgets(expression, 65, stdin); // includes newline from user, so 64+1
         // get rid of the newline
         int exp_length = strlen(expression);
@@ -111,7 +111,7 @@ A few points to note:\n\n\
         // printf("RPN: ");
         // print_tokenized(rpn_exp, rc);
 
-        start = get_double_input("\nPlease enter the lower limit of integration: ");
+        start = get_double_input("Please enter the lower limit of integration: ");
         end = get_double_input("Please enter the upper limit of integration: ");
 
         if (fabs(start-end) < 0.0000001) { 
