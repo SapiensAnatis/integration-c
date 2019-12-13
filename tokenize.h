@@ -6,11 +6,7 @@
 #include "token.h"
 #include "stack.h"
 
-// Shunting yard/RPN
-int exp_to_tokens(char*, struct Token *);
-void print_tokenized(struct Token *, int);
-void print_token(struct Token *);
-void compile_regex(char*, pcre2_code**);
-double evaluate_rpn(struct Token *, int, double);
+int exp_to_tokens(char *input_exp, struct Token *output_token_arr_ptr);
+void compile_regex(char *regex_str, pcre2_code **output_re);
 
 #endif

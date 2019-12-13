@@ -58,8 +58,8 @@ struct Token {
 
 // Functions
 
-double get_token_value(struct Token *, double);
-void print_token(struct Token *);
-void print_tokenized(struct Token *, int);
+double get_token_value(struct Token *token, double x);
+void print_token(struct Token *token);
+void print_tokenized(struct Token *token, int num_tokens);
 
 #endif

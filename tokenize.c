@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
-#define PCRE2_CODE_UNIT_WIDTH 8
+#define PCRE2_CODE_UNIT_WIDTH 8 // this comes before pcre2 include otherwise it breaks :/
 #include <pcre2.h> // perl-compatible regexes, more modern
 #include "stack.h"
 #include "tokenize.h"
@@ -16,52 +16,6 @@
  * Function definitions
  * ----------------------------------------------
  */
-
-
-/* int main() {
-    char expression[] = "4(sin(x))^2";
-    double x = 4;
-    int num_tokens;
-    int max_tokens;
-
-    max_tokens = (int)(ceil(strlen(expression) * 1.333333333));
-
-    struct Token *tokenized = malloc(max_tokens * sizeof(struct Token));
-    // printf("Allocated %d bytes for tokenized_exp array\n", max_tokens * sizeof(struct Token));
-    num_tokens = exp_to_tokens(expression, tokenized);
-
-    // printf("Input: %s\nOutput:", expression);
-    print_tokenized(tokenized, num_tokens);
-    // printf("Only needed %d bytes. Excess memory: %d bytes\n", 
-    //  sizeof(struct Token) * num_tokens, 
-    //  (max_tokens - num_tokens) * sizeof(struct Token)
-    // );
-
-    struct Token *rpn = malloc(num_tokens * sizeof(struct Token));
-    int rc = shunting_yard(tokenized, num_tokens, rpn);
-    printf("Shunting yard returned %d tokens. Shunted: ", rc);
-    print_tokenized(rpn, rc);
-
-    free(tokenized);
-
-    // Evaluating expression at some value
-    double result = evaluate_rpn(rpn, rc, x);
-
-    printf("Given f(x) = %s, and x = %f\n", expression, x);
-    printf("f(x) = %f", result);
-
-    free(rpn);
-
-    /*
-     * Example input/output:
-     * 
-     * For the input expression "(x+1)(x+2)", the above code will print
-     * 
-     * ['(', 'x', '+', '1.00', ')', '*', '(', 'x', '+', '2.00', ')']
-     * Shunting yard returned 7. Shunted: ['x', '1.00', '+', 'x', '2.00', '+', '*']
-     */
-//}
-
 
 // Function: exp_to_tokens(expression)
 // Description: Tokenizes expression, e.g. "3sin(0.1)" -> ["3", "sin", "(", "0.1", ")"]

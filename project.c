@@ -17,8 +17,10 @@
 /*
  * Function: main()
  *
- * Description: Main subroutine of the program. Executed on startup
- * Parameters: none
+ * Description: Main subroutine of the program. Executed on startup. Contains the loop that will
+ *              show the menu, get input, and use the math functions to execute the integration
+ * Parameters: none (if ran from the commandline, some parameters can be given to it, but these are
+ *             not used in the program)
  * Returns: Exit code, giving information about how the program performed (system dependant)
  */
 

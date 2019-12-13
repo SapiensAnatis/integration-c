@@ -6,8 +6,6 @@
 #include "token.h"
 #include "stack.h"
 
-// Attributions: Adapted from pseudocode at 
-// https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail
 
 // Function: shunting_yard(input_tokenized, token_count, output_tokenized)
 // Description: Performs Dijkestra's shunting-yard algorithm on a tokenized infix expression to
@@ -20,6 +18,10 @@
 //          parentheses were detected. It will also return -2 if the program attempted to access
 //          the top of the operator stack when it was empty, i.e. if the expression contains an
 //          operator first.
+// Attributions: Adapted from pseudocode at 
+//               https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail
+
+
 
 int shunting_yard(struct Token *input_tokenized, 
                             int token_count, 

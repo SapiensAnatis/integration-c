@@ -13,13 +13,13 @@ struct Stack {
 };
 
 // --- Function declarations ---
-struct Stack *init_stack(int);
-void push_stack(struct Stack*, struct Token);
-struct Token pop_stack(struct Stack*);
-struct Token *get_stack_top(struct Stack*);
-struct Token* get_stack_start(struct Stack*);
-int is_stack_empty(struct Stack*);
-int get_stack_size(struct Stack*);
-void delete_stack(struct Stack*);
+struct Stack *init_stack(int capacity);
+void push_stack(struct Stack* stack, struct Token value);
+struct Token pop_stack(struct Stack* stack);
+struct Token *get_stack_top(struct Stack* stack);
+struct Token* get_stack_start(struct Stack* stack);
+int is_stack_empty(struct Stack* stack);
+int get_stack_size(struct Stack* stack);
+void delete_stack(struct Stack* stack);
 
 #endif
