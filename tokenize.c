@@ -34,9 +34,10 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
     
     // Initialize all preset tokens
     // (i.e. all except numbers)
-    // Could do this before the push, but then they'd be declared every time they're needed
-    // This way is messier but it means they only get declared once
-    // So, I'm sorry about this....but it's for 'the greater good'
+    // Could do this as and when they are needed, but that would be during a loop so they'd get
+    // declared for every token which would make this O(n) rather than O(1)
+    // I'd also have liked to put this outside of the scope of the function, in a #define macro,
+    // but I don't think those support complex types like structs :(
     #pragma region Token_Defs
 
     const struct Token bracket_l = {

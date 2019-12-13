@@ -1,3 +1,36 @@
+/*
+* Project for the PHY2027 module
+* Author: Jay Malhotra
+* Date: 13/12/19
+*/
+
+/*
+ *
+ * Program description: Integration evaluation program, using either Simpson's rule or the 
+ *                      trapezium rule. Supports arbitrary mathematical expressions (with a few
+ *                      limitations) rather than just polynomials as required. It achieves this by:
+ *                          * using conditionals/some regex to tokenize the string expression, e.g.
+ *                            turning 4*sin(x) into ["4", "*", "sin", "(", "x", ")"]
+ *                          * using a shunting-yard algorithm to convert this infix (human-readable)
+ *                            expression into reverse Polish notation (RPN, also known as postfix),
+ *                            which is much easier for a computer to interpret. 
+ *                          * applying a relatively simple RPN interpreter algorithm which is a
+ *                            function that is given an expression & a particular value of x for
+ *                            which it should be evaluated 
+ *                          * using the above to get f(x) for any x, and use this to calculate
+ *                            the integral via Simpson's/trapezium rule
+ * 
+ * P.S. I'm really sorry to whoever's marking this...I thought it would be a lot simpler than it
+ * ended up being -- I've done this before in a similar low level language in a couple hundred of 
+ * lines, but this is a bit over 1300 across all of the files...hopefully it doesn't take too long
+ * to review it all.
+ * 
+ * Attributions: the shunting-yard algorithm and postfix evaluation algorithm were adapted from
+ * pseudocode located on the Wikipedia pages for 'shunting-yard algorithm' and 'postfix',
+ * respectively. Wikipedia pages for Simpson's rule and the trapezium rule were also used as a
+ * quick reference for these formulae.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -307,3 +340,63 @@ int get_int_input(const char* prompt) {
         }
     }
 }
+
+/* ================================================================================================
+ * Example output - writing in [square brackets] is my own & does not appear when the program runs
+ * ================================================================================================
+ * Please select from the following options:
+ *     	1. Compute integration estimate by Simpson's rule
+ *     	2. Compute integration estimate by trapezium rule
+ *     	3. Show help message
+ *     	4. Exit
+ * 1
+ * 
+ * Please enter an expression to perform integration of: 4(sin(x))^2 + 2
+ * 
+ * Please enter the lower limit of integration: 4
+ * Please enter the upper limit of integration: 6
+ * Please enter the number of strips to use: 100
+ * 
+ * Integration result: 9.556762 [analytical result: 9.52593116462]
+ * 
+ * ------------------------------------------------------------------------------------------------
+ *
+ * Please select from the following options:
+ *     	1. Compute integration estimate by Simpson's rule
+ *     	2. Compute integration estimate by trapezium rule
+ *     	3. Show help message
+ *     	4. Exit
+ * 2
+ * 
+ * Please enter an expression to perform integration of: 4x^2 - 24x + 4.2
+ * 
+ * Please enter the lower limit of integration: -2
+ * Please enter the upper limit of integration: 4
+ * Please enter the number of strips to use: 100
+ * 
+ * Integration result: -22.785600 [analytical result: -22.8]
+ * 
+ * ------------------------------------------------------------------------------------------------
+ *
+ * Please select from the following options:
+ *     	1. Compute integration estimate by Simpson's rule
+ *     	2. Compute integration estimate by trapezium rule
+ *     	3. Show help message
+ *     	4. Exit
+ * 1
+ * 
+ * Please enter an expression to perform integration of: x
+ * 
+ * Please enter the lower limit of integration: 0
+ * Please enter the upper limit of integration: 100
+ * Please enter the number of strips to use: 100
+ * 
+ * Integration result: 5066.666667 [analytical result: 5000]
+ * 
+ * Please select from the following options:
+ *     	1. Compute integration estimate by Simpson's rule
+ *     	2. Compute integration estimate by trapezium rule
+ *     	3. Show help message
+ *     	4. Exit
+ * 
+ */
