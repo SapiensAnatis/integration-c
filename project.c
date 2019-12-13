@@ -66,7 +66,7 @@ A few points to note:\n\n\
         // At this point, options 3/4 have broken the flow of the program, so we're only here
         // if we want to do some integration. We can therefore prepare for this, and only decide
         // which method to use later.1
-        char expression[64]; // The expression to evaluate
+        char expression[64] = ""; // The expression to evaluate
         int strips; // The width of the strips used in the approximation
         double start; // The lower value of the range
         double end; // The upper value of the range
@@ -106,10 +106,10 @@ A few points to note:\n\n\
         struct Token* rpn_exp = malloc(exp_tokens * sizeof(struct Token)); // same deal
         int rc = shunting_yard(tokenized_exp, exp_tokens, rpn_exp); // rc: number of shunted tokens
         
-        // printf("\nTokenized: ");
-        // print_tokenized(tokenized_exp, exp_tokens);
-        // printf("RPN: ");
-        // print_tokenized(rpn_exp, rc);
+        printf("\nTokenized: ");
+        print_tokenized(tokenized_exp, exp_tokens);
+        printf("RPN: ");
+        print_tokenized(rpn_exp, rc);
 
         start = get_double_input("Please enter the lower limit of integration: ");
         end = get_double_input("Please enter the upper limit of integration: ");
