@@ -41,7 +41,7 @@ binomial choose, to name a few) and similarly niche operators (e.g. factorial)\n
 A few points to note:\n\n\
 \t* At this time, the only variable of integration supported is x. Use this,\n\
 \t  and only this, when you want to use a variable.\n\
-\t* Please always enclose function arguments in brackets: e.g. ln(x) instead of lnx\n\
+\t* Please always enclose function arguments in brackets: e.g. ln(x) instead of lnx.\n\
 \t* The implemented functions are:\n\
 \t\t- 'sin',\n\
 \t\t- 'cos',\n\
