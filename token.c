@@ -64,7 +64,7 @@ void print_token(struct Token *token) {
             case Func_Tan:
                 printf("'tan'"); break;
             case Func_Ln:
-                printf("'tan'"); break;
+                printf("'ln'"); break;
             case Func_Exp:
                 printf("'exp'"); break;
             case Func_Log:
