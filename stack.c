@@ -124,6 +124,14 @@ struct Token* get_stack_top(struct Stack *stack) {
     // is only performed inside a few controlled methods.
 }
 
+/*
+ * Function get_stack_start(stack)
+ * 
+ * Description: Gets the address of the start of the stack
+ * Parameters: stack, the stack to examine
+ * Returns: Pointer to the start of the stack
+ */
+
 struct Token* get_stack_start(struct Stack *stack) {
     return stack->start;
 }
@@ -155,7 +163,7 @@ int get_stack_size(struct Stack *stack) {
 /*
  * Function delete_stack(stack)
  * 
- * Description: Frees up the memory allocated by a stack
+ * Description: Frees up the memory allocated by a stack (effectively deleting it)
  * Parameters: stack, the stack to delete/free up
  * Returns: none
  */
