@@ -170,7 +170,7 @@ A few points to note:\n\n\
                     four_or_two = 4;
                 }
                 y = evaluate_rpn(rpn_exp, rc, current_x);
-                printf("x = %f, y = %f\n", current_x, y);
+                // printf("x = %f, y = %f\n", current_x, y);
                 sum += (four_or_two * y);
                 
                 n++;

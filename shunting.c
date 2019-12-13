@@ -257,7 +257,16 @@ double evaluate_rpn(struct Token *input_rpn, int num_tokens, double x) {
             push_stack(eval_stack, *token);
         } 
         else if (token->type == Variable) {
-            push_stack(eval_stack, *token);
+            
+            // If there are no more tokens after this x, it won't get converted into a number
+            // where it normally would during the operator evaluation process
+            // So we should convert it ASAP or it might stay as x
+            struct Token result = { 
+                .type = Number,
+                .value = x
+            };
+
+            push_stack(eval_stack, result);
         }
 
     }
