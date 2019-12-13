@@ -246,6 +246,9 @@ double evaluate_rpn(struct Token *input_rpn, int num_tokens, double x) {
                 case Func_Log:
                     operation_result = log10(operand1_value);
                     break;
+                case Func_Exp:
+                    operation_result = exp(operand1_value);
+                    break;
             }
 
             struct Token result = {
