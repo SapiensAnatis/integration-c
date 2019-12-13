@@ -27,7 +27,11 @@ int main() {
         
         int choice;
         choice = menu();
-        clear_stdin();
+        
+        // Clear stdin buffer from above keypresses
+        // If we don't then the next fgets() is instantly filled by a single \n
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF) { }
 
         if (choice == 4) {
             return EXIT_SUCCESS; // Quit program with appropriate exit code
@@ -300,9 +304,4 @@ int get_int_input(const char* prompt) {
             return output;
         }
     }
-}
-
-void clear_stdin() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) { }
 }
