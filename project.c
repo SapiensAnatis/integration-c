@@ -98,16 +98,27 @@ A few points to note:\n\n\
 
         int max_exp_tokens = (int)(ceil(strlen(expression) * 1.333333333));
 
+        if (max_exp_tokens == 0) { // These checks exist to make sure we don't malloc() 0 bytes
+            printf("\nIntegration result: 0\n\n"); // Don't even bother 
+            continue;
+        }
         
         struct Token* tokenized_exp = malloc(max_exp_tokens * sizeof(struct Token));
         int exp_tokens = exp_to_tokens(expression, tokenized_exp); // assigns the tokenized exp to 
                                                                    // that pointer (2nd argument)
 
+        printf("\nTokenized: ");
+        print_tokenized(tokenized_exp, exp_tokens);
+
+        if (exp_tokens == 0) {
+            printf("\nIntegration result: 0\n\n"); 
+            continue;
+        }
+
         struct Token* rpn_exp = malloc(exp_tokens * sizeof(struct Token)); // same deal
         int rc = shunting_yard(tokenized_exp, exp_tokens, rpn_exp); // rc: number of shunted tokens
         
-        printf("\nTokenized: ");
-        print_tokenized(tokenized_exp, exp_tokens);
+        
         printf("RPN: ");
         print_tokenized(rpn_exp, rc);
 
@@ -142,7 +153,8 @@ A few points to note:\n\n\
         double y;
         // printf("h = %f\n", h);
 
-        double current_x = start + h;
+        double current_x = start + h; // don't eval at start twice
+
         // --- Simpson's rule ---
         if (choice == 1) {
             // First add f(x_0) and f(x_n)
@@ -158,7 +170,7 @@ A few points to note:\n\n\
                     four_or_two = 4;
                 }
                 y = evaluate_rpn(rpn_exp, rc, current_x);
-                // printf("x = %f, y = %f\n", current_x, y);
+                printf("x = %f, y = %f\n", current_x, y);
                 sum += (four_or_two * y);
                 
                 n++;
@@ -167,7 +179,10 @@ A few points to note:\n\n\
 
             // Finish by multiplying by dx/3
             sum *= h / 3;
-        } else if (choice == 2) {
+        } 
+
+        // --- Trapezium rule ---
+        else if (choice == 2) {
             sum += evaluate_rpn(rpn_exp, rc, start);
             sum += evaluate_rpn(rpn_exp, rc, end);
 
@@ -182,6 +197,8 @@ A few points to note:\n\n\
 
         printf("\nIntegration result: %f\n\n", sum);
 
+
+        // Avoid memory leaks, they aren't nice
         free(tokenized_exp);
         free(rpn_exp);
     }
