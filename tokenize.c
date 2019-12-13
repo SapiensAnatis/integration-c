@@ -271,7 +271,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             memcpy(substring, substring_start, substring_length);
 
             // Convert said string to a double
-            double d = strtod(substring, NULL);
+            double d = strtod(substring, NULL); // we know it's valid input so don't error check
             // No longer need it, so
             free(substring);
             //printf("\tMatch found (length %d): %f\n", substring_length, d);
@@ -284,7 +284,9 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             push_stack(output, num_token);
             prev_token = num_token;
             expression += substring_length;
-    
+
+            free(substring);
+            pcre2_match_data_free(match_data);
             continue;
         }
 
@@ -312,6 +314,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
 
             char *substring = malloc(substring_length * sizeof(char));
             memcpy(substring, substring_start, substring_length);
+            substring[substring_length] = 0; // memcpy didn't add the terminating character
 
             // Convert said string to a token
             // Bit messy. Would've preferred to use cases but you can't in C because Dennis Ritchie
@@ -325,6 +328,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             }
             
             // printf("Found match for function regex of length %d\n", substring_length);
+            
 
             if (strcmp(substring, "sin") == 0) { ft = Func_Sin; }
             else if (strcmp(substring, "cos") == 0) { ft = Func_Cos; }
@@ -343,6 +347,7 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             expression += substring_length;
 
             free(substring);
+            pcre2_match_data_free(match_data);
             continue;
         }
 
@@ -351,11 +356,11 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
         if (rc1 == PCRE2_ERROR_NOMATCH && rc2 == PCRE2_ERROR_NOMATCH) { 
             printf("Unrecognized token found in input expression: '%c'\n", expression[0]);
             expression++;
-            continue;
         }    
         else if (rc1 != PCRE2_ERROR_NOMATCH && rc2 != PCRE2_ERROR_NOMATCH) {
-            printf("Something went wrong in either regex match attempt: rc1 = %d / rc2 = %d", 
-            rc1, rc2);
+            printf("Something went wrong in either regex match attempt for token %c \
+            (rc1 = %d / rc2 = %d)", expression[0], rc1, rc2);
+            expression++;
         }
 
         pcre2_match_data_free(match_data);
