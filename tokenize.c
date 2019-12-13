@@ -285,7 +285,6 @@ int exp_to_tokens(char *expression, struct Token *tokenized) {
             prev_token = num_token;
             expression += substring_length;
 
-            free(substring);
             pcre2_match_data_free(match_data);
             continue;
         }
